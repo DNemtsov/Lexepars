@@ -22,7 +22,8 @@ Input text being parsed is represented with a [`InputText`](https://github.com/D
 
         var text = new Text("some input to parse");
 
-The lexer phase is implemented by anything that produces an `IEnumerable<`[Token](https://github.com/DNemtsov/Lexepars/tree/master/src/Lexepars/Token)`>`.  The default implementation, [`Lexer`](https://github.com/DNemtsov/Lexepars/blob/master/src/Lexepars/Lexer/LinedLexer.cs), builds the series of tokens when given a prioritized series of [`TokenKind`](https://github.com/DNemtsov/Lexepars/blob/master/src/Lexepars/Token/TokenKind.cs) token recognizers.  The most common `TokenKind` implementation is `PatternTokenKind`, which recognizes tokens via regular expressions. `TokenKind`s can be marked as skippable, if you want them to be recognized but discarded:
+The lexer phase is implemented by anything that produces an `IEnumerable<`[Token](https://github.com/DNemtsov/Lexepars/tree/master/src/Lexepars/Token)`>`.  The default implementation, [`Lexer`](https://github.com/DNemtsov/Lexepars/blob/master/src/Lexepars/Lexer/LinedLexer.cs), builds the series of tokens when given a prioritized series of [`TokenKind`](https://github.com/DNemtsov/Lexepars/blob/master/src/Lexepars/Token/TokenKind.cs) token recognizers.
+The most common `TokenKind` implementation is [`PatternTokenKind`](https://github.com/DNemtsov/Lexepars/blob/master/src/Lexepars/Token/TokenKinds/PatternTokenKind.cs), which recognizes tokens via regular expressions, but there are many [more](https://github.com/DNemtsov/Lexepars/blob/master/src/Lexepars/Token/TokenKinds). `TokenKind`s can be marked as skippable, if you want them to be recognized but discarded:
 
         var text = new Text("1 2 3 a b c");
         var lexer = new Lexer(new Pattern("letter", @"[a-z]"),
