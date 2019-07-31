@@ -45,11 +45,6 @@ namespace Lexepars.Tests
             return t => t.Lexeme.ShouldBe(expectedLexeme);
         }
 
-        static Action<IEnumerable<Token>> Lexemes(params string[] expectedLexemes)
-        {
-            return tokens => tokens.ShouldList(expectedLexemes.Select(Lexeme).ToArray());
-        }
-
         [Fact]
         public void CanFailWithoutConsumingInput()
         {

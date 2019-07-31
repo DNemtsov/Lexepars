@@ -163,7 +163,7 @@ namespace Lexepars
         /// <param name="mode">Parsing mode.</param>
         /// <param name="items">The item parsers. Not null. Not empty.</param>
         /// <returns>The new instance of <see cref="UnorderedParser{TValue}"/>. Not null.</returns>
-        public static UnorderedParser<TValue> Unordered<TValue>(UnorderedParsingMode mode = UnorderedParsingMode.RequireAllItems, params IParser<TValue>[] items) => new UnorderedParser<TValue>(mode, items);
+        public static UnorderedParser<TValue> Unordered<TValue>(UnorderedParsingMode mode = UnorderedParsingMode.FullSet, params IParser<TValue>[] items) => new UnorderedParser<TValue>(mode, items);
 
         protected void InferGrammarRuleNames()
         {

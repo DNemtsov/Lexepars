@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Lexepars.Token
+namespace Lexepars
 {
     /// <summary>
     /// Represents a language operator that is matched directly against the input text.

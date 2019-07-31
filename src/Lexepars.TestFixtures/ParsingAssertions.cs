@@ -103,13 +103,24 @@
             return parser.ParseGenerally(stream).Succeeds();
         }
 
-        public static IReply<T> Parses<T>(this IParser<T> parser, IEnumerable<Token> tokens)
+        public static IReply<T> Parses<T>(this IParser<T> parser, IEnumerable<Token> tokens, bool atTheEndOfInput = true)
         {
+            if (parser == null)
+                throw new ArgumentNullException(nameof(parser));
+
             var stream = new TokenStream(tokens);
 
-            parser.ParseGenerally(stream).Succeeds().AtEndOfInput();
+            var generalReply = parser.ParseGenerally(stream).Succeeds();
 
-            return parser.Parse(stream).Succeeds().AtEndOfInput();
+            if (atTheEndOfInput)
+                generalReply.AtEndOfInput();
+
+            var reply = parser.Parse(stream).Succeeds();
+
+            if (atTheEndOfInput)
+                reply.AtEndOfInput();
+
+            return reply;
         }
 
         public static IReply<T> Parses<T>(this IParser<T> parser, params Token[] tokens)

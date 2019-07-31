@@ -10,16 +10,17 @@ namespace Lexepars.Parsers
     public enum UnorderedParsingMode
     {
         /// <summary>
-        /// Expects that all the items be present, e.g. for {A, B}
-        /// the valid sets will be {A, B}, {B, A}.
+        /// Full set of items, e.g. for {A, B} the valid sets will be {A, B}, {B, A}.
         /// </summary>
-        RequireAllItems,
+        FullSet,
         /// <summary>
-        /// Expects that at least one item be present, e.g. for {A, B}
-        /// the valid sets will be {A}, {B}, {A, B}, {B, A}, essentially
-        /// being the power set of the item set except for the empty subset.
+        /// A non-empty subset, e.g. for {A, B} the valid sets will be {A}, {B}, {A, B}, {B, A}.
         /// </summary>
-        RequireAtLeastOneItem
+        NonemptySubset,
+        /// <summary>
+        /// Any subset, e.g. for {A, B} the valid sets will be {}, {A}, {B}, {A, B}, {B, A}.
+        /// </summary>
+        AnySubset
     }
 
     /// <summary>
@@ -52,7 +53,7 @@ namespace Lexepars.Parsers
         /// </summary>
         /// <param name="mode">Parsing mode.</param>
         /// <param name="items">The item parsers. Not null. Not empty.</param>
-        public UnorderedParser(UnorderedParsingMode mode = UnorderedParsingMode.RequireAllItems, params IParser<TValue>[] items)
+        public UnorderedParser(UnorderedParsingMode mode = UnorderedParsingMode.FullSet, params IParser<TValue>[] items)
         {
             ArgumentCheck.NotNullOrEmptyOrWithNulls(items, nameof(items));
 
@@ -61,7 +62,7 @@ namespace Lexepars.Parsers
         }
 
         /// <summary>
-        /// Creates a new instance of <see cref="UnorderedParser{TValue}"/> configured for <see cref="UnorderedParsingMode.RequireAllItems"/>
+        /// Creates a new instance of <see cref="UnorderedParser{TValue}"/> configured for <see cref="UnorderedParsingMode.FullSet"/>
         /// </summary>
         /// <param name="items">The item parsers. Not null. Not empty.</param>
         public UnorderedParser(params IParser<TValue>[] items)
@@ -118,10 +119,7 @@ namespace Lexepars.Parsers
                     }
                     else
                     {
-                        if (positionBeforeSeparator != positionAfterSeparator)
-                            return Failure<TValue[]>.From(separatorReply);
-
-                        if (_mode == UnorderedParsingMode.RequireAllItems)
+                        if (positionBeforeSeparator != positionAfterSeparator || _mode == UnorderedParsingMode.FullSet)
                             return Failure<TValue[]>.From(separatorReply);
                     }
 
@@ -153,16 +151,15 @@ namespace Lexepars.Parsers
                 else if (newPosition != oldPosition)
                     return Failure<TValue[]>.From(reply);
 
-
                 failures = failures.Merge(reply.FailureMessages);
 
                 var triedAllParsers = i == parsersLength - 1;
                 
-                if (newPosition != oldPosition || (triedAllParsers && (separatorWasTheLastTokenParsed || !atLeastOneItemParsed || _mode == UnorderedParsingMode.RequireAllItems)))
+                if (newPosition != oldPosition || (triedAllParsers && (separatorWasTheLastTokenParsed || _mode == UnorderedParsingMode.FullSet)))
                     return new Failure<TValue[]>(reply.UnparsedTokens, failures);
             }
 
-            if (parsersToGo > 0 && _mode == UnorderedParsingMode.RequireAllItems)
+            if ((parsersToGo > 0 && _mode == UnorderedParsingMode.FullSet) || (!atLeastOneItemParsed && _mode == UnorderedParsingMode.NonemptySubset))
                 return new Failure<TValue[]>(tokensToParse, failures);
 
             return new Success<TValue[]>(result, tokensToParse);

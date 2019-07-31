@@ -1,4 +1,6 @@
-﻿namespace Lexepars
+﻿using System.Text.RegularExpressions;
+
+namespace Lexepars
 {
     /// <summary>
     /// The regex-based token kind.
