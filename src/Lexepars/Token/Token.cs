@@ -15,6 +15,13 @@ namespace Lexepars
             Lexeme = lexeme;
         }
 
+        public Token(TokenKind kind, int line, int column, string lexeme)
+        {
+            Kind = kind;
+            Position = new Position(line, column);
+            Lexeme = lexeme;
+        }
+
         public override string ToString()
         {
             return $"{Position}{(Lexeme != null ? $"'{Lexeme}'" : "null")}<{Kind}>";

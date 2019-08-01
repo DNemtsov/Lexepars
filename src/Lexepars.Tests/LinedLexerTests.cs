@@ -34,30 +34,19 @@ namespace Lexepars.Tests
         [Fact]
         public void UsesPrioritizedTokenMatchersToTokenize()
         {
-            Tokenize("ABCdef\n" +
-                     "GHI")
-                .ShouldList(t => t.ShouldBe(_upper, "ABC", 1, 1),
-                            t => t.ShouldBe(_lower, "def", 1, 4),
-                            t => t.ShouldBe(_upper, "GHI", 2, 1));
+            Tokenize("ABCdef\nGHI").ShouldBe(new[] { new Token(_upper, 1, 1, "ABC"), new Token(_lower, 1, 4, "def"), new Token(_upper, 2, 1, "GHI") });
         }
 
         [Fact]
         public void ProvidesTokenAtUnrecognizedInput()
         {
-            Tokenize("ABC!def")
-                .ShouldList(t => t.ShouldBe(_upper, "ABC", 1, 1),
-                            t => t.ShouldBe(TokenKind.Unknown, "!def", 1, 4));
+            Tokenize("ABC!def").ShouldBe(new[] { new Token(_upper, 1, 1, "ABC"), new Token(TokenKind.Unknown, 1, 4, "!def") });
         }
 
         [Fact]
         public void ProvidesTokenAtUnrecognizedMultilineInput()
         {
-            Tokenize("ABC\r\n" +
-                     "!def\r" +
-                     "vfs\r")
-                .ShouldList(
-                    t => t.ShouldBe(_upper, "ABC", 1, 1),
-                    t => t.ShouldBe(TokenKind.Unknown, "!def\r", 2, 1));
+            Tokenize("ABC\r\n!def\rvfs\r").ShouldBe(new[] { new Token(_upper, 1, 1, "ABC"), new Token(TokenKind.Unknown, 2, 1, "!def\r") });
         }
 
         [Fact]
@@ -70,9 +59,7 @@ namespace Lexepars.Tests
             {
                 var tokens = _lexer.Tokenize(reader);
 
-                tokens.ShouldList(
-                    t => t.ShouldBe(_upper, "ABC", 1, 1),
-                    t => t.ShouldBe(TokenKind.Unknown, "!def\n", 2, 1));
+                tokens.ShouldBe(new[] { new Token(_upper, 1, 1, "ABC"), new Token(TokenKind.Unknown, 2, 1, "!def\n") });
 
                 reader.ReadLine().ShouldBe(oneMoreLine);
             }
@@ -84,10 +71,7 @@ namespace Lexepars.Tests
             Tokenize(" ").ShouldBeEmpty();
 
             Tokenize(" ABC  def   GHI    jkl  ")
-                .ShouldList(t => t.ShouldBe(_upper, "ABC", 1, 2),
-                            t => t.ShouldBe(_lower, "def", 1, 7),
-                            t => t.ShouldBe(_upper, "GHI", 1, 13),
-                            t => t.ShouldBe(_lower, "jkl", 1, 20));
+                .ShouldBe(new[] { new Token(_upper, 1, 2, "ABC"), new Token(_lower, 1, 7, "def"), new Token(_upper, 1, 13, "GHI"), new Token(_lower, 1, 20, "jkl") });
         }
 
         [Fact]
@@ -99,11 +83,7 @@ namespace Lexepars.Tests
                         def
                          GHI
                           jkl  ")
-                .ShouldList(
-                    t => t.ShouldBe(_upper, "ABC", 1, 2),
-                    t => t.ShouldBe(_lower, "def", 2, 25),
-                    t => t.ShouldBe(_upper, "GHI", 3, 26),
-                    t => t.ShouldBe(_lower, "jkl", 4, 27));
+                .ShouldBe(new[] { new Token(_upper, 1, 2, "ABC"), new Token(_lower, 2, 25, "def"), new Token(_upper, 3, 26, "GHI"), new Token(_lower, 4, 27, "jkl") });
         }
     }
 }
