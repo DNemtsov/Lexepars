@@ -6,79 +6,115 @@ namespace Lexepars.Parsers
     public delegate T AtomNodeBuilder<out T>(string atom);
     public delegate T UnaryNodeBuilder<T>(string symbol, T operand);
     public delegate T BinaryNodeBuilder<T>(T left, string symbol, T right);
-    public enum Associativity { Left, Right }
 
-    public class OperatorPrecedenceParser<T> : Parser<T>
+    /// <summary>
+    /// Operator associativity.
+    /// For example, for left-associative operator + the expression 1 + 2 + 3 is equivalent to ((1 + 2) + 3);
+    /// if + were right-associative, the same expression would be equivalent to (1 + (2 + 3)).
+    /// </summary>
+    public enum Associativity
     {
-        private readonly IDictionary<TokenKind, IParser<T>> _unitParsers;
-        private readonly IDictionary<TokenKind, ExtendParserBuilder<T>> _extendParsers;
+        Left,
+        Right
+    }
+
+    /// <summary>
+    /// Parses expressions comprised of atoms (e.g. constants, variable names), unary (prefix and postfix), binary (left and right associative) operators, grouping units (e.g. parentheses)
+    /// </summary>
+    /// <typeparam name="TValue">The type of the parsed value.</typeparam>
+    public class OperatorPrecedenceParser<TValue> : Parser<TValue>
+    {
+        private readonly IDictionary<TokenKind, IParser<TValue>> _unitParsers;
+        private readonly IDictionary<TokenKind, ExtendParserBuilder<TValue>> _extendParsers;
         private readonly IDictionary<TokenKind, int> _extendParserPrecedence;
 
+        /// <summary>
+        /// Creates a new instance of <see cref="OperatorPrecedenceParser{TValue}"/>.
+        /// </summary>
         public OperatorPrecedenceParser()
         {
-            _unitParsers = new Dictionary<TokenKind, IParser<T>>();
-            _extendParsers = new Dictionary<TokenKind, ExtendParserBuilder<T>>();
+            _unitParsers = new Dictionary<TokenKind, IParser<TValue>>();
+            _extendParsers = new Dictionary<TokenKind, ExtendParserBuilder<TValue>>();
             _extendParserPrecedence = new Dictionary<TokenKind, int>();
         }
 
-        public void Unit(TokenKind kind, IParser<T> unitParser)
+        /// <summary>
+        /// Registers a grouping unit, e.g. opening parenthesis
+        /// </summary>
+        /// <param name="kind">Grouping unit token kind.</param>
+        /// <param name="unitParser">Unit parser.</param>
+        public void Unit(TokenKind kind, IParser<TValue> unitParser)
         {
             _unitParsers[kind] = unitParser;
         }
 
-        public void Atom(TokenKind kind, AtomNodeBuilder<T> createAtomNode)
+        /// <summary>
+        /// Registers an atom (e.g. numeric coefficient, variable name)
+        /// </summary>
+        /// <param name="kind">Atom unit token kind.</param>
+        /// <param name="atomNodeBuilder">Atom node builder function.</param>
+        public void Atom(TokenKind kind, AtomNodeBuilder<TValue> atomNodeBuilder)
         {
-            Unit(kind, kind.BindLexeme(l => createAtomNode(l)));
+            Unit(kind, kind.BindLexeme(l => atomNodeBuilder(l)));
         }
 
-        public void Prefix(TokenKind operation, int precedence, UnaryNodeBuilder<T> createUnaryNode)
+        /// <summary>
+        /// Registers a prefix unary operator.
+        /// </summary>
+        /// <param name="kind">Operator token kind.</param>
+        /// <param name="precedence">Precedence. The bigger the number the more priority in the expression the operator has.</param>
+        /// <param name="unaryNodeBuilder">Unary node builder function.</param>
+        public void Prefix(TokenKind kind, int precedence, UnaryNodeBuilder<TValue> unaryNodeBuilder)
         {
-            Unit(operation, from symbol in operation.Lexeme()
-                            from operand in OperandAtPrecedenceLevel(precedence)
-                            select createUnaryNode(symbol, operand));
+            Unit(kind, from symbol in kind.Lexeme() from operand in OperandAtPrecedenceLevel(precedence) select unaryNodeBuilder(symbol, operand));
         }
 
-        public void Extend(TokenKind operation, int precedence, ExtendParserBuilder<T> createExtendParser)
+        public void Extend(TokenKind operation, int precedence, ExtendParserBuilder<TValue> createExtendParser)
         {
             _extendParsers[operation] = createExtendParser;
             _extendParserPrecedence[operation] = precedence;
         }
 
-        public void Postfix(TokenKind operation, int precedence, UnaryNodeBuilder<T> createUnaryNode)
+        /// <summary>
+        /// Registers a postfix unary operator.
+        /// </summary>
+        /// <param name="kind">Operator token kind.</param>
+        /// <param name="precedence">Precedence. The bigger the number the more priority in the expression the operator has.</param>
+        /// <param name="unaryNodeBuilder">Unary node builder function.</param>
+        public void Postfix(TokenKind kind, int precedence, UnaryNodeBuilder<TValue> unaryNodeBuilder)
         {
-            Extend(operation, precedence, left => from symbol in operation.Lexeme()
-                                                  select createUnaryNode(symbol, left));
+            Extend(kind, precedence, left => from symbol in kind.Lexeme() select unaryNodeBuilder(symbol, left));
         }
 
-        public void Binary(TokenKind operation, int precedence, BinaryNodeBuilder<T> createBinaryNode,
-                           Associativity associativity = Associativity.Left)
+        /// <summary>
+        /// Registers a postfix unary operator.
+        /// </summary>
+        /// <param name="kind">Operator token kind.</param>
+        /// <param name="precedence">Precedence. The bigger the number the more priority in the expression the operator has.</param>
+        /// <param name="binaryNodeBuilder">Binary node builder function.</param>
+        /// <param name="associativity">Operator associativity.</param>
+        public void Binary(TokenKind kind, int precedence, BinaryNodeBuilder<TValue> binaryNodeBuilder, Associativity associativity = Associativity.Left)
         {
-            int rightOperandPrecedence = precedence;
+            var rightOperandPrecedence = associativity == Associativity.Left ? precedence : precedence - 1;
 
-            if (associativity == Associativity.Right)
-                rightOperandPrecedence = precedence - 1;
-
-            Extend(operation, precedence, left => from symbol in operation.Lexeme()
-                                                  from right in OperandAtPrecedenceLevel(rightOperandPrecedence)
-                                                  select createBinaryNode(left, symbol, right));
+            Extend(kind, precedence, left => from symbol in kind.Lexeme() from right in OperandAtPrecedenceLevel(rightOperandPrecedence) select binaryNodeBuilder(left, symbol, right));
         }
 
-        public override IReply<T> Parse(TokenStream tokens)
-        {
-            return Parse(tokens, 0);
-        }
+        /// <summary>
+        /// Parses the stream of tokens.
+        /// </summary>
+        /// <param name="tokens">Stream of tokens to parse. Not null.</param>
+        /// <returns>Parsing reply. Not null.</returns>
+        public override IReply<TValue> Parse(TokenStream tokens) => Parse(tokens, 0);
 
-        private IParser<T> OperandAtPrecedenceLevel(int precedence)
-        {
-            return new LambdaParser<T>(tokens => Parse(tokens, precedence));
-        }
+        private IParser<TValue> OperandAtPrecedenceLevel(int precedence) => new LambdaParser<TValue>(tokens => Parse(tokens, precedence));
 
-        private IReply<T> Parse(TokenStream tokens, int precedence)
+        private IReply<TValue> Parse(TokenStream tokens, int precedence)
         {
             var token = tokens.Current;
 
             if (!_unitParsers.ContainsKey(token.Kind))
-                return new Failure<T>(tokens, FailureMessage.Unknown());
+                return new Failure<TValue>(tokens, FailureMessage.Unknown());
 
             var reply = _unitParsers[token.Kind].Parse(tokens);
 
@@ -107,6 +143,7 @@ namespace Lexepars.Parsers
         private int GetPrecedence(Token token)
         {
             var kind = token.Kind;
+
             if (_extendParserPrecedence.ContainsKey(kind))
                 return _extendParserPrecedence[kind];
 

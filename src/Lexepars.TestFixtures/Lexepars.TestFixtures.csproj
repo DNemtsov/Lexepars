@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AssemblyName>Lexepars.TestFixtures</AssemblyName>
     <PackageId>Lexepars.TestFixtures</PackageId>
-    <VersionPrefix>1.1.1</VersionPrefix>
+    <VersionPrefix>1.1.2</VersionPrefix>
     <PackageProjectUrl>https://github.com/dnemtsov/Lexepars</PackageProjectUrl>
     <PackageLicense>https://github.com/dnemtsov/Lexepars/blob/master/LICENSE.txt</PackageLicense>
     <RepositoryType>git</RepositoryType>
