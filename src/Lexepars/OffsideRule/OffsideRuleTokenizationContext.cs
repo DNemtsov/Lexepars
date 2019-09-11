@@ -16,11 +16,11 @@ namespace Lexepars.OffsideRule
 
         public LinedInputText Text { get; }
 
-        public Stack<int> IndentLevels { get; }
+        protected Stack<int> IndentLevels { get; }
 
         protected Flow Flow { get; }
 
-        public virtual int CurrentIndentLevel { get; protected set; }
+        protected int CurrentIndentLevel { get; set; }
 
         protected bool TrackScopesInCurrentLine { get; set; }
 
@@ -51,21 +51,18 @@ namespace Lexepars.OffsideRule
         /// <returns>Whether to continue matching indents.</returns>
         public virtual void OnProcessIndent(Indent indent, Token token)
         {
-            var indentPredefinedValue = indent.PredefinedValue;
-
-            if (indentPredefinedValue == 0)
-                CurrentIndentLevel += token.Lexeme?.Length ?? 0;
-            else if (indentPredefinedValue > 0)
-                CurrentIndentLevel += indentPredefinedValue;
+            CurrentIndentLevel = indent.CalculateNewIndentLevel(CurrentIndentLevel, token);
         }
 
-        public virtual bool NoMoreIndents() => false;
+        public virtual bool StopIndentLexing() => false;
 
         public virtual void OnIndentLexingComplete()
-        { }
+        {
+        }
 
         public virtual void OnProcessToken(Token token)
-        { }
+        {
+        }
 
         public virtual IEnumerable<ScopeState> BalanceScope()
         {
@@ -98,6 +95,16 @@ namespace Lexepars.OffsideRule
             }
 
             return Enumerable.Empty<ScopeState>();
+        }
+
+        public virtual int ResetIndentation()
+        {
+            var scopesToClose = IndentLevels.Count;
+
+            CurrentIndentLevel = 0;
+            IndentLevels.Clear();
+
+            return scopesToClose;
         }
     }
 }

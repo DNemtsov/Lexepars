@@ -88,10 +88,10 @@ namespace Lexepars.OffsideRule
 
                     text.Advance(token.Lexeme.Length);
 
-                    if (context.NoMoreIndents())
+                    if (context.StopIndentLexing())
                         break;
 
-                    i = -1; // start from the beginning of _indents
+                    i = -1; // start from the beginning of the _indents
                 }
 
                 context.OnIndentLexingComplete();
@@ -137,17 +137,15 @@ namespace Lexepars.OffsideRule
                 }
             }
 
-            for (var i = 0; i < context.IndentLevels.Count; ++i)
+            var scopesToClose = context.ResetIndentation();
+
+            for (int i = 0; i < scopesToClose; ++i)
                 yield return ScopeEnd.CreateTokenAtCurrentPosition(text);
         }
 
-        protected virtual bool ShouldSkipToken(Token token, TTokenizationContext context)
-            => SkippableTokenKinds.Contains(token.Kind);
+        protected virtual bool ShouldSkipToken(Token token, TTokenizationContext context) => SkippableTokenKinds.Contains(token.Kind);
 
-        protected virtual Token GetToken(ILinedInputText text, TTokenizationContext context)
-        {
-            return GetToken(text);
-        }
+        protected virtual Token GetToken(ILinedInputText text, TTokenizationContext context) => GetToken(text);
     }
 
     public class OffsideRuleLexer : OffsideRuleLexer<OffsideRuleTokenizationContext>
