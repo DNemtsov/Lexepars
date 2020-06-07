@@ -24,11 +24,7 @@ namespace Lexepars.Parsers
             _right = right ?? throw new ArgumentNullException(nameof(right));
         }
 
-        /// <summary>
-        /// Parses the stream of tokens.
-        /// </summary>
-        /// <param name="tokens">Stream of tokens to parse. Not null.</param>
-        /// <returns>Parsing reply. Not null.</returns>
+        /// <inheritdoc/>
         public override IReply<TValue> Parse(TokenStream tokens)
         {
             var left = _left.ParseGenerally(tokens);
@@ -49,11 +45,7 @@ namespace Lexepars.Parsers
             return new Success<TValue>(item.ParsedValue, right.UnparsedTokens, right.FailureMessages);
         }
 
-        /// <summary>
-        /// Parsing optimized for the case when the reply value is not needed. NOTE: Result continuation will not be called.
-        /// </summary>
-        /// <param name="tokens">The token stream to parse. Not null.</param>
-        /// <returns>General parsing reply. Not null.</returns>
+        /// <inheritdoc/>
         public override IGeneralReply ParseGenerally(TokenStream tokens)
         {
             var left = _left.ParseGenerally(tokens);
@@ -69,10 +61,7 @@ namespace Lexepars.Parsers
             return _right.ParseGenerally(item.UnparsedTokens);
         }
 
-        /// <summary>
-        /// Builds the parser expression.
-        /// </summary>
-        /// <returns>Expression string. Not null.</returns>
+        /// <inheritdoc/>
         protected override string BuildExpression() => $"<({_left.Expression}|{_item.Expression}|{_right.Expression})>";
         
         private readonly IGeneralParser _left;

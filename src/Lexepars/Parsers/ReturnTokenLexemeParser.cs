@@ -16,6 +16,7 @@ namespace Lexepars.Parsers
             _kind = kind ?? throw new ArgumentNullException(nameof(kind));
         }
 
+        /// <inheritdoc/>
         public override IReply<string> Parse(TokenStream tokens)
         {
             var currentToken = tokens.Current;
@@ -26,10 +27,7 @@ namespace Lexepars.Parsers
             return new Success<string>(currentToken.Lexeme, tokens.Advance());
         }
 
-        /// <summary>
-        /// Parsing optimized for the case when the reply value is not needed. NOTE: Result continuation will not be called.
-        /// </summary>
-        /// <param name="tokens">Tokens to parse</param>
+        /// <inheritdoc/>
         public override IGeneralReply ParseGenerally(TokenStream tokens)
         {
             if (tokens.Current.Kind != _kind)
@@ -38,10 +36,7 @@ namespace Lexepars.Parsers
             return new GeneralSuccess(tokens.Advance());
         }
 
-        /// <summary>
-        /// Builds the parser expression.
-        /// </summary>
-        /// <returns>Expression string. Not null.</returns>
+        /// <inheritdoc/>
         protected override string BuildExpression() => $"<'{_kind}'>";
 
         private readonly TokenKind _kind;

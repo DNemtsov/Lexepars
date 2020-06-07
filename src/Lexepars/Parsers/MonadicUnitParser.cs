@@ -1,22 +1,29 @@
 ﻿namespace Lexepars.Parsers
 {
-    public class MonadicUnitParser<T> : Parser<T>
+    /// <summary>
+    /// Simply returns a successful result with the value provided. Useful for the monadic chaining situations.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the parsed value.</typeparam>
+    public class MonadicUnitParser<TValue> : Parser<TValue>
     {
-        public MonadicUnitParser(T value)
+        /// <summary>
+        /// Creates a new instance of <see cref="MonadicUnitParser{TValue}"/>.
+        /// </summary>
+        /// <param name="value">Value to be returned. Can be null.</param>
+        public MonadicUnitParser(TValue value)
         {
             _value = value;
         }
 
-        public override IReply<T> Parse(TokenStream tokens) => new Success<T>(_value, tokens);
+        /// <inheritdoc/>
+        public override IReply<TValue> Parse(TokenStream tokens) => new Success<TValue>(_value, tokens);
 
-        /// <summary>
-        /// Parsing optimized for the case when the reply value is not needed.
-        /// </summary>
-        /// <param name="tokens">Tokens to parse</param>
+        /// <inheritdoc/>
         public override IGeneralReply ParseGenerally(TokenStream tokens) => new GeneralSuccess(tokens);
 
-        private readonly T _value;
+        private readonly TValue _value;
 
+        /// <inheritdoc/>
         protected override string BuildExpression() => $"<= {_value}>";
     }
 }

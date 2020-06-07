@@ -1,20 +1,26 @@
 ﻿namespace Lexepars.Parsers
 {
     /// <summary>
-    /// Base class for a typical general parser. Has to be inherited.
+    /// Base class for a typical general parser. Has to be inherited from.
     /// </summary>
     public abstract class Parser : IGeneralParser
     {
-        /// <summary>
-        /// Parsing optimized for the case when the reply value is not needed.
-        /// </summary>
-        /// <param name="tokens">Tokens to parse.</param>
+        /// <inheritdoc/>
         public abstract IGeneralReply ParseGenerally(TokenStream tokens);
 
+        /// <summary>
+        /// Returns the parser expression.
+        /// </summary>
+        /// <returns>Parser expression string. Not null.</returns>
         public override string ToString() => Expression;
 
+        /// <summary>
+        /// Builds the parser expression.
+        /// </summary>
+        /// <returns>Expression string. Not null.</returns>
         protected abstract string BuildExpression();
 
+        /// <inheritdoc/>
         public string Expression
         {
             get
@@ -36,22 +42,14 @@
     }
 
     /// <summary>
-    /// Base class for a typical parser. Has to be inherited.
+    /// Base class for a typical parser. Has to be inherited from.
     /// </summary>
     public abstract class Parser<TValue> : Parser, IParser<TValue>
     {
-        /// <summary>
-        /// Parses the stream of tokens.
-        /// </summary>
-        /// <param name="tokens">Stream of tokens to parse. Not null.</param>
-        /// <returns>Parsing reply. Not null.</returns>
+        /// <inheritdoc/>
         public abstract IReply<TValue> Parse(TokenStream tokens);
 
-        /// <summary>
-        /// Parsing optimized for the case when the reply value is not needed.
-        /// </summary>
-        /// <param name="tokens">The token stream to parse. Not null.</param>
-        /// <returns>General parsing reply. Not null.</returns>
+        /// <inheritdoc/>
         public override IGeneralReply ParseGenerally(TokenStream tokens) => Parse(tokens);
     }
 }

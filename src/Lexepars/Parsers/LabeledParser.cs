@@ -11,7 +11,7 @@ namespace Lexepars.Parsers
     public class LabeledParser<TValue> : Parser<TValue>
     {
         /// <summary>
-        ///  Creates a new instance of <see cref="LabeledParser{TValue}"/>.
+        /// Creates a new instance of <see cref="LabeledParser{TValue}"/>.
         /// </summary>
         /// <param name="parser">The `p parser. Not null.</param>
         /// <param name="expectation">Expectation message. Not null.</param>
@@ -21,11 +21,7 @@ namespace Lexepars.Parsers
             _failures = FailureMessages.Empty.With(FailureMessage.Expected(expectation));
         }
 
-        /// <summary>
-        /// Parses the stream of tokens.
-        /// </summary>
-        /// <param name="tokens">Stream of tokens to parse. Not null.</param>
-        /// <returns>Parsing reply. Not null.</returns>
+        /// <inheritdoc/>
         public override IReply<TValue> Parse(TokenStream tokens)
         {
             var oldPosition = tokens.Position;
@@ -41,17 +37,10 @@ namespace Lexepars.Parsers
             return new Failure<TValue>(reply.UnparsedTokens, _failures);
         }
 
-        /// <summary>
-        /// Parsing optimized for the case when the reply value is not needed. NOTE: Result continuation will not be called.
-        /// </summary>
-        /// <param name="tokens">The token stream to parse. Not null.</param>
-        /// <returns>General parsing reply. Not null.</returns>
+        /// <inheritdoc/>
         public override IGeneralReply ParseGenerally(TokenStream tokens) => _parser.ParseGenerally(tokens);
 
-        /// <summary>
-        /// Builds the parser expression.
-        /// </summary>
-        /// <returns>Expression string. Not null.</returns>
+        /// <inheritdoc/>
         protected override string BuildExpression() => $"<LABEL {_parser.Expression} WITH {_failures}";
 
         private readonly IParser<TValue> _parser;

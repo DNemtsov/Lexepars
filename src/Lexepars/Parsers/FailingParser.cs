@@ -1,24 +1,29 @@
 namespace Lexepars.Parsers
 {
-    public class FailingParser<T> : Parser<T>
+    /// <summary>
+    /// Always returns a failure result. May be used to specifically prohibit some structures from occurring in the input. Can be equipped with a custom failure message.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the parsed value.</typeparam>
+    public class FailingParser<TValue> : Parser<TValue>
     {
-        /// <summary>
-        /// Parsing optimized for the case when the reply value is not needed.
-        /// </summary>
-        /// <param name="tokens">Stream of tokens to parse. Not null.</param>
-        /// <returns>Parsing reply. Not null.</returns>
-        public override IReply<T> Parse(TokenStream tokens) => new Failure<T>(tokens, FailureMessage.Unknown());
+        private readonly FailureMessage _message;
 
         /// <summary>
-        /// Parsing optimized for the case when the reply value is not needed.
+        /// Creates a new instance of <see cref="FailingParser{TValue}"/>.
         /// </summary>
-        /// <param name="tokens">Tokens to parse</param>
-        public override IGeneralReply ParseGenerally(TokenStream tokens) => new GeneralFailure(tokens, FailureMessage.Unknown());
+        /// <param name="message">The failure message to appear on the result.</param>
+        public FailingParser(FailureMessage message = null)
+        {
+            _message = message ?? FailureMessage.Unknown();
+        }
 
-        /// <summary>
-        /// Builds the parser expression.
-        /// </summary>
-        /// <returns>Expression string. Not null.</returns>
+        ///<inheritdoc/>
+        public override IReply<TValue> Parse(TokenStream tokens) => new Failure<TValue>(tokens, _message);
+
+        ///<inheritdoc/>
+        public override IGeneralReply ParseGenerally(TokenStream tokens) => new GeneralFailure(tokens, _message);
+
+        ///<inheritdoc/>
         protected override string BuildExpression() => "<FAIL>";
     }
 }

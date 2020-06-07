@@ -18,11 +18,7 @@ namespace Lexepars.Parsers
             _items = items;
         }
 
-        /// <summary>
-        /// Parsing optimized for the case when the reply value is not needed.
-        /// </summary>
-        /// <param name="tokens">Stream of tokens to parse. Not null.</param>
-        /// <returns>Parsing reply. Not null.</returns>
+        /// <inheritdoc/>
         public override IGeneralReply ParseGenerally(TokenStream tokens)
         {
             IGeneralReply reply = null;
@@ -42,10 +38,7 @@ namespace Lexepars.Parsers
             return reply;
         }
 
-        /// <summary>
-        /// Builds the parser expression.
-        /// </summary>
-        /// <returns>Expression string. Not null.</returns>
+        /// <inheritdoc/>
         protected override string BuildExpression()
         {
             var sb = new StringBuilder("<SKIP ");

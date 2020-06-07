@@ -14,7 +14,13 @@ namespace Lexepars.Parsers
     /// </summary>
     public enum Associativity
     {
+        /// <summary>
+        /// If op is o, then A o B o C becomes ((A o B) o C)
+        /// </summary>
         Left,
+        /// <summary>
+        /// If op is o, then A o B o C becomes (A o (B o C))
+        /// </summary>
         Right
     }
 
@@ -61,29 +67,35 @@ namespace Lexepars.Parsers
         /// <summary>
         /// Registers a prefix unary operator.
         /// </summary>
-        /// <param name="kind">Operator token kind.</param>
+        /// <param name="operatorTokenKind">Operator token kind.</param>
         /// <param name="precedence">Precedence. The bigger the number the more priority in the expression the operator has.</param>
         /// <param name="unaryNodeBuilder">Unary node builder function.</param>
-        public void Prefix(TokenKind kind, int precedence, UnaryNodeBuilder<TValue> unaryNodeBuilder)
+        public void Prefix(TokenKind operatorTokenKind, int precedence, UnaryNodeBuilder<TValue> unaryNodeBuilder)
         {
-            Unit(kind, from symbol in kind.Lexeme() from operand in OperandAtPrecedenceLevel(precedence) select unaryNodeBuilder(symbol, operand));
+            Unit(operatorTokenKind, from symbol in operatorTokenKind.Lexeme() from operand in OperandAtPrecedenceLevel(precedence) select unaryNodeBuilder(symbol, operand));
         }
 
-        public void Extend(TokenKind operation, int precedence, ExtendParserBuilder<TValue> createExtendParser)
+        /// <summary>
+        /// Registers an operator extension.
+        /// </summary>
+        /// <param name="operatorTokenKind">Operator token kind.</param>
+        /// <param name="precedence"></param>
+        /// <param name="createExtendParser"></param>
+        public void Extend(TokenKind operatorTokenKind, int precedence, ExtendParserBuilder<TValue> createExtendParser)
         {
-            _extendParsers[operation] = createExtendParser;
-            _extendParserPrecedence[operation] = precedence;
+            _extendParsers[operatorTokenKind] = createExtendParser;
+            _extendParserPrecedence[operatorTokenKind] = precedence;
         }
 
         /// <summary>
         /// Registers a postfix unary operator.
         /// </summary>
-        /// <param name="kind">Operator token kind.</param>
+        /// <param name="operatorTokenKind">Operator token kind.</param>
         /// <param name="precedence">Precedence. The bigger the number the more priority in the expression the operator has.</param>
         /// <param name="unaryNodeBuilder">Unary node builder function.</param>
-        public void Postfix(TokenKind kind, int precedence, UnaryNodeBuilder<TValue> unaryNodeBuilder)
+        public void Postfix(TokenKind operatorTokenKind, int precedence, UnaryNodeBuilder<TValue> unaryNodeBuilder)
         {
-            Extend(kind, precedence, left => from symbol in kind.Lexeme() select unaryNodeBuilder(symbol, left));
+            Extend(operatorTokenKind, precedence, left => from symbol in operatorTokenKind.Lexeme() select unaryNodeBuilder(symbol, left));
         }
 
         /// <summary>
@@ -100,11 +112,7 @@ namespace Lexepars.Parsers
             Extend(kind, precedence, left => from symbol in kind.Lexeme() from right in OperandAtPrecedenceLevel(rightOperandPrecedence) select binaryNodeBuilder(left, symbol, right));
         }
 
-        /// <summary>
-        /// Parses the stream of tokens.
-        /// </summary>
-        /// <param name="tokens">Stream of tokens to parse. Not null.</param>
-        /// <returns>Parsing reply. Not null.</returns>
+        /// <inheritdoc/>
         public override IReply<TValue> Parse(TokenStream tokens) => Parse(tokens, 0);
 
         private IParser<TValue> OperandAtPrecedenceLevel(int precedence) => new LambdaParser<TValue>(tokens => Parse(tokens, precedence));
@@ -150,6 +158,7 @@ namespace Lexepars.Parsers
             return 0;
         }
 
+        /// <inheritdoc/>
         protected override string BuildExpression() => "<OPP>";
     }
 }

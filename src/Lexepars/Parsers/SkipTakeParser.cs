@@ -19,11 +19,7 @@ namespace Lexepars.Parsers
             _skip = skip ?? throw new ArgumentNullException(nameof(skip));
         }
 
-        /// <summary>
-        /// Parses the stream of tokens.
-        /// </summary>
-        /// <param name="tokens">Stream of tokens to parse. Not null.</param>
-        /// <returns>Parsing reply. Not null.</returns>
+        /// <inheritdoc/>
         public override IReply<TValue> Parse(TokenStream tokens)
         {
             var skip = _skip.ParseGenerally(tokens);
@@ -34,11 +30,7 @@ namespace Lexepars.Parsers
             return _take.Parse(skip.UnparsedTokens);
         }
 
-        /// <summary>
-        /// Parsing optimized for the case when the reply value is not needed.
-        /// </summary>
-        /// <param name="tokens">Stream of tokens to parse. Not null.</param>
-        /// <returns>Parsing reply. Not null.</returns>
+        /// <inheritdoc/>
         public override IGeneralReply ParseGenerally(TokenStream tokens)
         {
             var skip = _skip.ParseGenerally(tokens);
@@ -49,10 +41,7 @@ namespace Lexepars.Parsers
             return _take.ParseGenerally(skip.UnparsedTokens);
         }
 
-        /// <summary>
-        /// Builds the parser expression.
-        /// </summary>
-        /// <returns>Expression string. Not null.</returns>
+        /// <inheritdoc/>
         protected override string BuildExpression() => $"<TAKE {_take.Expression} SKIP {_skip.Expression}>";
 
         private readonly IParser<TValue> _take;

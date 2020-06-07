@@ -76,11 +76,7 @@ namespace Lexepars.Parsers
         private readonly IGeneralParser _separator;
         private readonly UnorderedParsingMode _mode;
 
-        /// <summary>
-        /// Parses the stream of tokens.
-        /// </summary>
-        /// <param name="tokens">Stream of tokens to parse. Not null.</param>
-        /// <returns>Parsing reply. Not null.</returns>
+        /// <inheritdoc/>
         public override IReply<TValue[]> Parse(TokenStream tokens)
         {
             var tokensToParse = tokens ?? throw new ArgumentNullException(nameof(tokens));
@@ -165,10 +161,7 @@ namespace Lexepars.Parsers
             return new Success<TValue[]>(result, tokensToParse);
         }
 
-        /// <summary>
-        /// Builds the parser expression.
-        /// </summary>
-        /// <returns>Expression string. Not null.</returns>
+        /// <inheritdoc/>
         protected override string BuildExpression()
         {
             var sb = new StringBuilder("<UNORDERED ");

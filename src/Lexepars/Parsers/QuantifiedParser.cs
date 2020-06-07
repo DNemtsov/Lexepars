@@ -91,11 +91,7 @@ namespace Lexepars.Parsers
             _separator = separator;
         }
 
-        /// <summary>
-        /// Parses the stream of tokens.
-        /// </summary>
-        /// <param name="tokens">Stream of tokens to parse. Not null.</param>
-        /// <returns>Parsing reply. Not null.</returns>
+        /// <inheritdoc/>
         public override IReply<IList<TValue>> Parse(TokenStream tokens)
         {
             var oldPosition = tokens.Position;
@@ -219,11 +215,7 @@ namespace Lexepars.Parsers
             return new Success<IList<TValue>>(list, reply.UnparsedTokens, reply.FailureMessages);
         }
 
-        /// <summary>
-        /// Parsing optimized for the case when the reply value is not needed. NOTE: Result continuation will not be called.
-        /// </summary>
-        /// <param name="tokens">The token stream to parse. Not null.</param>
-        /// <returns>General parsing reply. Not null.</returns>
+        /// <inheritdoc/>
         public override IGeneralReply ParseGenerally(TokenStream tokens)
         {
             if (tokens == null)

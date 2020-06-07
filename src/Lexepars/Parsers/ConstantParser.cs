@@ -17,11 +17,7 @@
             _value = value;
         }
 
-        /// <summary>
-        /// Parses the stream of tokens.
-        /// </summary>
-        /// <param name="tokens">Stream of tokens to parse. Not null.</param>
-        /// <returns>Parsing reply. Not null.</returns>
+        /// <inheritdoc/>
         public override IReply<TValue> Parse(TokenStream tokens)
         {
             if (tokens.Current.Kind == _kind)
@@ -30,11 +26,7 @@
             return new Failure<TValue>(tokens, FailureMessage.Expected(_kind.Name));
         }
 
-        /// <summary>
-        /// Parsing optimized for the case when the reply value is not needed.
-        /// </summary>
-        /// <param name="tokens">Stream of tokens to parse. Not null.</param>
-        /// <returns>Parsing reply. Not null.</returns>
+        /// <inheritdoc/>
         public override IGeneralReply ParseGenerally(TokenStream tokens)
         {
             if (tokens.Current.Kind == _kind)
@@ -43,10 +35,7 @@
             return new GeneralFailure(tokens, FailureMessage.Expected(_kind.Name));
         }
 
-        /// <summary>
-        /// Builds the parser expression.
-        /// </summary>
-        /// <returns>Expression string. Not null.</returns>
+        /// <inheritdoc/>
         protected override string BuildExpression() => $"<C {_kind} := {_value}>";
 
         private readonly TokenKind _kind;

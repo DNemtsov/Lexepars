@@ -3,11 +3,12 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Description>Concise monadic parser combinator library with separate lexer/parser phases and big-size input support.</Description>
-    <Copyright>Copyright © 2018-2019</Copyright>
+    <Copyright>© 2019 Dmitrii Nemtsov</Copyright>
     <AssemblyTitle>Lexepars</AssemblyTitle>
     <VersionPrefix>1.2.0</VersionPrefix>
     <Authors>Dmitrii Nemtsov</Authors>
     <AssemblyName>Lexepars</AssemblyName>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Lexepars</PackageId>
     <PackageProjectUrl>https://github.com/dnemtsov/Lexepars</PackageProjectUrl>
     <PackageLicense>https://github.com/dnemtsov/Lexepars/blob/master/LICENSE.txt</PackageLicense>

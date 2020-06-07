@@ -2,20 +2,30 @@ using System;
 
 namespace Lexepars.Parsers
 {
-    public class LambdaParser<T> : Parser<T>
+    /// <summary>
+    /// Uses the provided lambda expression to perform parsing.
+    /// </summary>
+    /// <typeparam name="TValue">The type of the parsed value.</typeparam>
+    public class LambdaParser<TValue> : Parser<TValue>
     {
-        private readonly Func<TokenStream, IReply<T>> _parse;
+        private readonly Func<TokenStream, IReply<TValue>> _parse;
 
-        public LambdaParser(Func<TokenStream, IReply<T>> parse)
+        /// <summary>
+        /// Creates a new instance of <see cref="LambdaParser{TValue}"/>.
+        /// </summary>
+        /// <param name="parse"></param>
+        public LambdaParser(Func<TokenStream, IReply<TValue>> parse)
         {
             _parse = parse;
         }
 
-        public override IReply<T> Parse(TokenStream tokens)
+        /// <inheritdoc/>
+        public override IReply<TValue> Parse(TokenStream tokens)
         {
             return _parse(tokens);
         }
 
-        protected override string BuildExpression() => $"<(t) {typeof(T)}>";
+        /// <inheritdoc/>
+        protected override string BuildExpression() => $"<(t) {typeof(TValue)}>";
     }
 }
