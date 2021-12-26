@@ -22,10 +22,7 @@ namespace Lexepars
             Lexeme = lexeme;
         }
 
-        public override string ToString()
-        {
-            return $"{Position}{(Lexeme != null ? $"'{Lexeme}'" : "null")}<{Kind}>";
-        }
+        public override string ToString() => $"{Position}{(Lexeme != null ? $"'{Lexeme}'" : "null")}<{Kind}>";
 
         public bool Equals(Token other)
         {
@@ -62,9 +59,6 @@ namespace Lexepars
             }
         }
 
-        public override int GetHashCode()
-        {
-            return Kind.GetHashCode() ^ Position.GetHashCode() ^ Lexeme.GetHashCode();
-        }
+        public override int GetHashCode() => Kind.GetHashCode() ^ Position.GetHashCode() ^ Lexeme.GetHashCode();
     }
 }

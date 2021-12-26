@@ -4,6 +4,9 @@ using System.Text;
 
 namespace Lexepars
 {
+    /// <summary>
+    /// Represents the default implementaion of the lined input text.
+    /// </summary>
     public class LinedInputText : ILinedInputText
     {
         private string _lineBuffer;
@@ -12,11 +15,16 @@ namespace Lexepars
         private int _line;
         private int _index;
 
+        /// <summary>
+        /// Creates a new instance of <see cref="LinedInputText"/>.
+        /// </summary>
+        /// <param name="reader">Text reader.</param>
         public LinedInputText(TextReader reader)
         {
             _reader = reader ?? throw new ArgumentNullException(nameof(reader));
         }
 
+        /// <inheritdoc/>
         public string Peek(int characters)
         {
             if (_lineBuffer == null || characters <= 0)
@@ -29,6 +37,7 @@ namespace Lexepars
             return s;
         }
 
+        /// <inheritdoc/>
         public bool ReadLine()
         {
             _lineBuffer = ReadLinePreservingNewlineCharacters(_reader)?.ToString();
@@ -45,6 +54,7 @@ namespace Lexepars
             return true;
         }
 
+        /// <inheritdoc/>
         public void Advance(int characters)
         {
             if (characters <= 0)
@@ -58,10 +68,13 @@ namespace Lexepars
             _index = index;
         }
 
+        /// <inheritdoc/>
         public bool EndOfInput { get; private set; }
 
+        /// <inheritdoc/>
         public bool EndOfLine => _lineBuffer == null || _index >= _lineBuffer.Length;
 
+        /// <inheritdoc/>
         public MatchResult Match(TokenRegex regex)
         {
             if (_lineBuffer == null)
@@ -70,6 +83,7 @@ namespace Lexepars
             return regex.Match(_lineBuffer, _index);
         }
 
+        /// <inheritdoc/>
         public MatchResult Match(Predicate<char> test)
         {
             if (_lineBuffer == null)
@@ -88,8 +102,10 @@ namespace Lexepars
             return MatchResult.Fail;
         }
 
+        /// <inheritdoc/>
         public Position Position => new Position(_line, _index + 1);
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             if (_lineBuffer == null)
