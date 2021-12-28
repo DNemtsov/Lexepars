@@ -5,7 +5,7 @@
     <Description>Concise monadic parser combinator library with separate lexer/parser phases and big-size input support.</Description>
     <Copyright>© 2019 Dmitrii Nemtsov</Copyright>
     <AssemblyTitle>Lexepars</AssemblyTitle>
-    <VersionPrefix>1.2.0</VersionPrefix>
+    <VersionPrefix>1.3.0</VersionPrefix>
     <Authors>Dmitrii Nemtsov</Authors>
     <AssemblyName>Lexepars</AssemblyName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
