@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <Description>Concise monadic parser combinator library with separate lexer/parser phases and big-size input support.</Description>
     <Copyright>© 2019 Dmitrii Nemtsov</Copyright>
     <AssemblyTitle>Lexepars</AssemblyTitle>
