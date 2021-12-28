@@ -16,10 +16,9 @@ namespace Lexepars.Parsers
     /// message. Regardless of the success, all input from successful
     /// applications of `item remain consumed.
     /// </summary>
-    /// <typeparam name="TValue">The type of the parsed value.</typeparam>
-    public class QuantifiedParser<TValue> : Parser<IList<TValue>>
+    public class CountingQuantifiedParser : Parser<int>
     {
-        private readonly IParser<TValue> _item;
+        private readonly IGeneralParser _item;
         private readonly QuantificationRule _quantificationRule;
         private readonly int _n;
         private readonly int _m;
@@ -34,7 +33,7 @@ namespace Lexepars.Parsers
         /// <param name="m">M parameter of the quantification rule. If used by the <paramref name="quantificationRule"/>,
         /// should be not less than N, othervise should be set to -1. ></param>
         /// <param name="separator">Optional item separator parser. Is null by default.</param>
-        public QuantifiedParser(IParser<TValue> item, QuantificationRule quantificationRule, int n, int m = -1, IGeneralParser separator = null)
+        public CountingQuantifiedParser(IGeneralParser item, QuantificationRule quantificationRule, int n, int m = -1, IGeneralParser separator = null)
         {
             _item = item ?? throw new ArgumentNullException(nameof(item));
 
@@ -66,135 +65,8 @@ namespace Lexepars.Parsers
         }
 
         /// <inheritdoc/>
-        public override IReply<IList<TValue>> Parse(TokenStream tokens)
+        public override IReply<int> Parse(TokenStream tokens)
         {
-            var oldPosition = tokens.Position;
-            var reply = _item.Parse(tokens);
-            var newPosition = reply.UnparsedTokens.Position;
-
-            var times = 0;
-
-            var list = new List<TValue>();
-
-            var separatorParserIsPresent = _separator != null;
-            var separatorWasParsed = false;
-
-            while (reply.Success)
-            {
-                if (oldPosition == newPosition)
-                    throw new Exception($"Item parser {_item.Expression} encountered a potential infinite loop at position {newPosition}.");
-
-                ++times;
-
-                switch (_quantificationRule)
-                {
-                    case QuantificationRule.ExactlyN:
-                        if (times > _n)
-                            return new Failure<IList<TValue>>(
-                                reply.UnparsedTokens,
-                                FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring exactly {_n} times"))
-                            );
-                        break;
-                    case QuantificationRule.NtoM:
-                        if (times > _m)
-                            return new Failure<IList<TValue>>(
-                                reply.UnparsedTokens,
-                                FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring between {_n} and {_m} times"))
-                            );
-                        break;
-                    case QuantificationRule.NOrLess:
-                        if (times > _n)
-                            return new Failure<IList<TValue>>(
-                                reply.UnparsedTokens,
-                                FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring no more than {_n} times"))
-                            );
-                        break;
-                }
-
-                list.Add(reply.ParsedValue);
-
-                var unparsedTokens = reply.UnparsedTokens;
-
-                if (separatorParserIsPresent)
-                {
-                    var positionBeforeSeparator = newPosition;
-
-                    var separatorReply = _separator.ParseGenerally(reply.UnparsedTokens);
-
-                    unparsedTokens = separatorReply.UnparsedTokens;
-
-                    var positionAfterSeparator = unparsedTokens.Position;
-
-                    if (separatorReply.Success)
-                    {
-                        if (positionBeforeSeparator == positionAfterSeparator)
-                            throw new Exception($"Separator parser {_separator.Expression} encountered a potential infinite loop at position {positionBeforeSeparator}.");
-                    }
-                    else
-                    {
-                        if (positionBeforeSeparator != positionAfterSeparator)
-                            return Failure<TValue[]>.From(separatorReply);
-                    }
-
-                    newPosition = positionAfterSeparator;
-
-                    separatorWasParsed = separatorReply.Success;
-                }
-
-                oldPosition = newPosition;
-
-                if (separatorParserIsPresent && !separatorWasParsed)
-                    break;
-
-                reply = _item.Parse(unparsedTokens);
-
-                if (!reply.Success && separatorParserIsPresent)
-                    return new Failure<IList<TValue>>(reply.UnparsedTokens, reply.FailureMessages);
-
-                newPosition = reply.UnparsedTokens.Position;
-            }
-
-            //The item parser finally failed or the separator parser parsed the next separator, but there was no item following it
-            if (oldPosition != newPosition || separatorParserIsPresent && separatorWasParsed)
-                return new Failure<IList<TValue>>(reply.UnparsedTokens, reply.FailureMessages);
-
-            switch (_quantificationRule)
-            {
-                case QuantificationRule.NOrMore:
-                    if (times < _n)
-                        return new Failure<IList<TValue>>(
-                            reply.UnparsedTokens,
-                            FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring {_n}+ times")));
-                    break;
-                case QuantificationRule.ExactlyN:
-                    if (times != _n)
-                        return new Failure<IList<TValue>>(
-                            reply.UnparsedTokens,
-                            FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring exactly {_n} times")));
-                    break;
-                case QuantificationRule.NtoM:
-                    if (times < _n)
-                        return new Failure<IList<TValue>>(
-                            reply.UnparsedTokens,
-                            FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring between {_n} and {_m} times")));
-                    break;
-                case QuantificationRule.NOrLess:
-                    if (times > _n)
-                        return new Failure<IList<TValue>>(
-                            reply.UnparsedTokens,
-                            FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring no more than {_n} times")));
-                    break;
-            }
-
-            return new Success<IList<TValue>>(list, reply.UnparsedTokens, reply.FailureMessages);
-        }
-
-        /// <inheritdoc/>
-        public override IGeneralReply ParseGenerally(TokenStream tokens)
-        {
-            if (tokens == null)
-                throw new ArgumentNullException(nameof(tokens));
-
             var oldPosition = tokens.Position;
             var reply = _item.ParseGenerally(tokens);
             var newPosition = reply.UnparsedTokens.Position;
@@ -215,21 +87,24 @@ namespace Lexepars.Parsers
                 {
                     case QuantificationRule.ExactlyN:
                         if (times > _n)
-                            return new GeneralFailure(
+                            return new Failure<int>(
                                 reply.UnparsedTokens,
-                                FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring no more than exactly {_n} times")));
+                                FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring exactly {_n} times"))
+                            );
                         break;
                     case QuantificationRule.NtoM:
                         if (times > _m)
-                            return new GeneralFailure(
+                            return new Failure<int>(
                                 reply.UnparsedTokens,
-                                FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring no more than between {_n} and {_m} times")));
+                                FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring between {_n} and {_m} times"))
+                            );
                         break;
                     case QuantificationRule.NOrLess:
                         if (times > _n)
-                            return new GeneralFailure(
+                            return new Failure<int>(
                                 reply.UnparsedTokens,
-                                FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring no more than {_n} times")));
+                                FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring no more than {_n} times"))
+                            );
                         break;
                 }
 
@@ -253,7 +128,7 @@ namespace Lexepars.Parsers
                     else
                     {
                         if (positionBeforeSeparator != positionAfterSeparator)
-                            return Failure<TValue[]>.From(separatorReply);
+                            return Failure<int>.From(separatorReply);
                     }
 
                     newPosition = positionAfterSeparator;
@@ -269,50 +144,48 @@ namespace Lexepars.Parsers
                 reply = _item.ParseGenerally(unparsedTokens);
 
                 if (!reply.Success && separatorParserIsPresent)
-                    return new GeneralFailure(reply.UnparsedTokens, reply.FailureMessages);
+                    return new Failure<int>(reply.UnparsedTokens, reply.FailureMessages);
 
                 newPosition = reply.UnparsedTokens.Position;
             }
 
             //The item parser finally failed or the separator parser parsed the next separator, but there was no item following it
             if (oldPosition != newPosition || separatorParserIsPresent && separatorWasParsed)
-                return new GeneralFailure(reply.UnparsedTokens, reply.FailureMessages);
+                return new Failure<int>(reply.UnparsedTokens, reply.FailureMessages);
 
             switch (_quantificationRule)
             {
                 case QuantificationRule.NOrMore:
                     if (times < _n)
-                        return new GeneralFailure(
+                        return new Failure<int>(
                             reply.UnparsedTokens,
-                            FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring {_n}+ times"))
-                        );
+                            FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring {_n}+ times")));
                     break;
                 case QuantificationRule.ExactlyN:
                     if (times != _n)
-                        return new GeneralFailure(
+                        return new Failure<int>(
                             reply.UnparsedTokens,
-                            FailureMessages.Empty.With(FailureMessage.Expected(
-                                $"{_item.Expression} occurring no {(times > _n ? "more" : "less")} than exactly {_n} times")
-                            ));
+                            FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring exactly {_n} times")));
                     break;
                 case QuantificationRule.NtoM:
                     if (times < _n)
-                        return new GeneralFailure(
+                        return new Failure<int>(
                             reply.UnparsedTokens,
-                            FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring no less than between {_n} and {_m} times"))
-                        );
+                            FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring between {_n} and {_m} times")));
                     break;
                 case QuantificationRule.NOrLess:
                     if (times > _n)
-                        return new GeneralFailure(
+                        return new Failure<int>(
                             reply.UnparsedTokens,
-                            FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring no more than {_n} times"))
-                        );
+                            FailureMessages.Empty.With(FailureMessage.Expected($"{_item.Expression} occurring no more than {_n} times")));
                     break;
             }
 
-            return new GeneralSuccess(reply.UnparsedTokens);
+            return new Success<int>(times, reply.UnparsedTokens, reply.FailureMessages);
         }
+
+        /// <inheritdoc/>
+        public override IGeneralReply ParseGenerally(TokenStream tokens) => Parse(tokens);
 
         /// <summary>
         /// Builds the parser expression.
@@ -323,13 +196,13 @@ namespace Lexepars.Parsers
             switch (_quantificationRule)
             {
                 case QuantificationRule.NtoM:
-                    return $"<{_n} TO {_m} TIMES {_item.Expression}>";
+                    return $"<COUNT [{_n};{_m}] TIMES {_item.Expression}>";
                 case QuantificationRule.ExactlyN:
-                    return $"<{_n} TIMES {_item.Expression}>";
+                    return $"<COUNT {_n} TIMES {_item.Expression}>";
                 case QuantificationRule.NOrLess:
-                    return $"<{_n}- TIMES {_item.Expression}>";
+                    return $"<COUNT {_n}- TIMES {_item.Expression}>";
                 default:
-                    return $"<{_n}+ TIMES {_item.Expression}>";
+                    return $"<COUNT {_n}+ TIMES {_item.Expression}>";
             }
         }
     }

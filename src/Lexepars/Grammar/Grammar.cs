@@ -42,7 +42,7 @@ namespace Lexepars
         /// </summary>
         /// <typeparam name="TValue">The type of the parsed value.</typeparam>
         /// <param name="item">The item parser. Not null.</param>
-        /// <param name="itemSeparator">Optional item separator parser. Is null by default.</param>
+        /// <param name="separator">Optional item separator parser. Is null by default.</param>
         /// <returns>The new instance of <see cref="QuantifiedParser{TValue}"/>. Not null.</returns>
         public static QuantifiedParser<TValue> ZeroOrMore<TValue>(IParser<TValue> item, IGeneralParser separator = null) => new QuantifiedParser<TValue>(item, QuantificationRule.NOrMore, 0, -1, separator);
 
@@ -51,7 +51,7 @@ namespace Lexepars
         /// </summary>
         /// <typeparam name="TValue">The type of the parsed value.</typeparam>
         /// <param name="item">The item parser. Not null.</param>
-        /// <param name="itemSeparator">Optional item separator parser. Is null by default.</param>
+        /// <param name="separator">Optional item separator parser. Is null by default.</param>
         /// <returns>The new instance of <see cref="QuantifiedParser{TValue}"/>. Not null.</returns>
         public static QuantifiedParser<TValue> OneOrMore<TValue>(IParser<TValue> item, IGeneralParser separator = null) => new QuantifiedParser<TValue>(item, QuantificationRule.NOrMore, 1, -1, separator);
 
@@ -61,7 +61,7 @@ namespace Lexepars
         /// <typeparam name="TValue">The type of the parsed value.</typeparam>
         /// <param name="n">The minimum number of occurrences of the `item. Non-negative.</param>
         /// <param name="item">The `item parser. Not null.</param>
-        /// <param name="itemSeparator">Optional item separator parser. Is null by default.</param>
+        /// <param name="separator">Optional item separator parser. Is null by default.</param>
         /// <returns>The new instance of <see cref="QuantifiedParser{TValue}"/>. Not null.</returns>
         public static QuantifiedParser<TValue> NOrMore<TValue>(int n, IParser<TValue> item, IGeneralParser separator = null) => new QuantifiedParser<TValue>(item, QuantificationRule.NOrMore, n, -1, separator);
 
@@ -71,7 +71,7 @@ namespace Lexepars
         /// <typeparam name="TValue">The type of the parsed value.</typeparam>
         /// <param name="n">The maximum number of occurrences of the `item. Non-negative.</param>
         /// <param name="item">The `item parser. Not null.</param>
-        /// <param name="itemSeparator">Optional item separator parser. Is null by default.</param>
+        /// <param name="separator">Optional item separator parser. Is null by default.</param>
         /// <returns>The new instance of <see cref="QuantifiedParser{TValue}"/>. Not null.</returns>
         public static QuantifiedParser<TValue> NOrLess<TValue>(int n, IParser<TValue> item, IGeneralParser separator = null) => new QuantifiedParser<TValue>(item, QuantificationRule.NOrLess, n, -1, separator);
 
@@ -82,7 +82,7 @@ namespace Lexepars
         /// <param name="n">The minimum number of occurrences of the `item. Non-negative.</param>
         /// <param name="m">The maximum number of occurrences of the `item. Non-negative.</param>
         /// <param name="item">The `item parser. Not null.</param>
-        /// <param name="itemSeparator">Optional item separator parser. Is null by default.</param>
+        /// <param name="separator">Optional item separator parser. Is null by default.</param>
         /// <returns>The new instance of <see cref="QuantifiedParser{TValue}"/>. Not null.</returns>
         public static QuantifiedParser<TValue> NToM<TValue>(int n, int m, IParser<TValue> item, IGeneralParser separator = null) => new QuantifiedParser<TValue>(item, QuantificationRule.NtoM, n, m, separator);
 
@@ -92,9 +92,53 @@ namespace Lexepars
         /// <typeparam name="TValue">The type of the parsed value.</typeparam>
         /// <param name="n">The exact number of occurrences of the `item. Non-negative.</param>
         /// <param name="item">The `item parser. Not null.</param>
-        /// <param name="itemSeparator">Optional item separator parser. Is null by default.</param>
+        /// <param name="separator">Optional item separator parser. Is null by default.</param>
         /// <returns>The new instance of <see cref="QuantifiedParser{TValue}"/>. Not null.</returns>
         public static QuantifiedParser<TValue> ExactlyN<TValue>(int n, IParser<TValue> item, IGeneralParser separator = null) => new QuantifiedParser<TValue>(item, QuantificationRule.ExactlyN, n, -1, separator);
+
+        /// <summary>
+        /// Creates a new instance of <see cref="CountingQuantifiedParser"/> configured to <see cref="QuantificationRule.NOrMore"/> with N being 0.
+        /// </summary>
+        /// <param name="item">The item parser. Not null.</param>
+        /// <param name="separator">Optional item separator parser. Is null by default.</param>
+        /// <returns>The new instance of <see cref="CountingQuantifiedParser"/>. Not null.</returns>
+        public static CountingQuantifiedParser CountZeroOrMore(IGeneralParser item, IGeneralParser separator = null) => new CountingQuantifiedParser(item, QuantificationRule.NOrMore, 0, -1, separator);
+
+        /// <summary>
+        /// Creates a new instance of <see cref="CountingQuantifiedParser"/> configured to <see cref="QuantificationRule.NOrMore"/> with N being 1.
+        /// </summary>
+        /// <param name="item">The item parser. Not null.</param>
+        /// <param name="separator">Optional item separator parser. Is null by default.</param>
+        /// <returns>The new instance of <see cref="CountingQuantifiedParser"/>. Not null.</returns>
+        public static CountingQuantifiedParser CountOneOrMore(IGeneralParser item, IGeneralParser separator = null) => new CountingQuantifiedParser(item, QuantificationRule.NOrMore, 1, -1, separator);
+
+        /// <summary>
+        /// Creates a new instance of <see cref="CountingQuantifiedParser"/> configured to <see cref="QuantificationRule.NOrMore"/>.
+        /// </summary>
+        /// <param name="n">The minimum number of occurrences of the `item. Non-negative.</param>
+        /// <param name="item">The `item parser. Not null.</param>
+        /// <param name="separator">Optional item separator parser. Is null by default.</param>
+        /// <returns>The new instance of <see cref="CountingQuantifiedParser"/>. Not null.</returns>
+        public static CountingQuantifiedParser CountNOrMore(int n, IGeneralParser item, IGeneralParser separator = null) => new CountingQuantifiedParser(item, QuantificationRule.NOrMore, n, -1, separator);
+
+        /// <summary>
+        /// Creates a new instance of <see cref="QuantifiedParser{TValue}"/> configured to <see cref="QuantificationRule.NOrLess"/>.
+        /// </summary>
+        /// <param name="n">The maximum number of occurrences of the `item. Non-negative.</param>
+        /// <param name="item">The `item parser. Not null.</param>
+        /// <param name="separator">Optional item separator parser. Is null by default.</param>
+        /// <returns>The new instance of <see cref="CountingQuantifiedParser"/>. Not null.</returns>
+        public static CountingQuantifiedParser CountNOrLess(int n, IGeneralParser item, IGeneralParser separator = null) => new CountingQuantifiedParser(item, QuantificationRule.NOrLess, n, -1, separator);
+
+        /// <summary>
+        /// Creates a new instance of <see cref="QuantifiedParser{TValue}"/> configured to <see cref="QuantificationRule.NtoM"/>.
+        /// </summary>
+        /// <param name="n">The minimum number of occurrences of the `item. Non-negative.</param>
+        /// <param name="m">The maximum number of occurrences of the `item. Non-negative.</param>
+        /// <param name="item">The `item parser. Not null.</param>
+        /// <param name="separator">Optional item separator parser. Is null by default.</param>
+        /// <returns>The new instance of <see cref="CountingQuantifiedParser"/>. Not null.</returns>
+        public static CountingQuantifiedParser CountNToM(int n, int m, IGeneralParser item, IGeneralParser separator = null) => new CountingQuantifiedParser(item, QuantificationRule.NtoM, n, m, separator);
 
         /// <summary>
         /// Creates a new instance of <see cref="BetweenParser{TValue}"/>.
