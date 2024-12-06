@@ -6,7 +6,8 @@
     <PackageId>Lexepars.TestFixtures</PackageId>
     <VersionPrefix>1.3.0</VersionPrefix>
     <PackageProjectUrl>https://github.com/dnemtsov/Lexepars</PackageProjectUrl>
-    <PackageLicense>https://github.com/dnemtsov/Lexepars/blob/master/LICENSE.txt</PackageLicense>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/dnemtsov/Lexepars</RepositoryUrl>
     <PackageTags>monadic parser combinator, parsing, lexer, tokenization, parsec, fparsec</PackageTags>
@@ -14,14 +15,30 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Lexepars\Lexepars.csproj" />
-  </ItemGroup>
+  <PropertyGroup>
+    <LexeparsPath>..\..\..\Lexepars\src\Lexepars\Lexepars.csproj</LexeparsPath>
+  </PropertyGroup>
+
+  <Choose>
+    <When Condition="Exists($(LexeparsPath))">
+      <ItemGroup>
+        <ProjectReference Include="$(LexeparsPath)" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="Lexepars" Version="1.3.0" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
 
   <ItemGroup>
     <PackageReference Include="Shouldly" Version="4.2.1" />
   </ItemGroup>
+
   <ItemGroup>
     <None Include="..\..\LICENSE.txt" Pack="true" PackagePath="LICENSE.txt" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="README.md" />
   </ItemGroup>
+
 </Project>

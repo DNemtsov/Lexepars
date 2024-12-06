@@ -11,7 +11,8 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Lexepars</PackageId>
     <PackageProjectUrl>https://github.com/dnemtsov/Lexepars</PackageProjectUrl>
-    <PackageLicense>https://github.com/dnemtsov/Lexepars/blob/master/LICENSE.txt</PackageLicense>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/dnemtsov/Lexepars</RepositoryUrl>
     <PackageTags>monadic parser combinator, parsing, lexer, tokenization, parsec, fparsec</PackageTags>
@@ -22,5 +23,7 @@
 
   <ItemGroup>
     <None Include="..\..\LICENSE.txt" Pack="true" PackagePath="LICENSE.txt" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="README.md" />
   </ItemGroup>
+
 </Project>
