@@ -13,6 +13,7 @@
     <PackageTags>monadic parser combinator, parsing, lexer, tokenization, parsec, fparsec</PackageTags>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
   <PropertyGroup>
