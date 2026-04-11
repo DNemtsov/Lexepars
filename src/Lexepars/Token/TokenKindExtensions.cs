@@ -1,4 +1,5 @@
 ﻿using System;
+using Lexepars.Async_Parsers;
 using Lexepars.Parsers;
 
 namespace Lexepars
@@ -24,10 +25,22 @@ namespace Lexepars
         public static TokenByKindParser Kind(this TokenKind tokenKind) => new TokenByKindParser(tokenKind);
 
         /// <summary>
+        /// Creates a <see cref="TokenByKindParserAsync"/>.
+        /// </summary>
+        /// <returns>The new instance of <see cref="TokenByKindParser"/>. Not null.</returns>
+        public static TokenByKindParserAsync KindAsync(this TokenKind tokenKind) => new TokenByKindParserAsync(tokenKind);
+
+        /// <summary>
         /// Creates a <see cref="ReturnTokenLexemeParser"/>.
         /// </summary>
         /// <returns>The new instance of <see cref="ReturnTokenLexemeParser"/>. Not null.</returns>
         public static ReturnTokenLexemeParser Lexeme(this TokenKind tokenKind) => new ReturnTokenLexemeParser(tokenKind);
+
+        /// <summary>
+        /// Creates a <see cref="ReturnTokenLexemeParserAsync"/>.
+        /// </summary>
+        /// <returns>The new instance of <see cref="ReturnTokenLexemeParserAsync"/>. Not null.</returns>
+        public static ReturnTokenLexemeParserAsync LexemeAsync(this TokenKind tokenKind) => new ReturnTokenLexemeParserAsync(tokenKind);
 
         /// <summary>
         /// Creates a <see cref="BindTokenLexemeByKindParser{TValue}"/>.
@@ -35,6 +48,13 @@ namespace Lexepars
         /// <typeparam name="TValue">The type of the parsed result.</typeparam>
         /// <returns>The new instance of <see cref="BindTokenLexemeByKindParser{TValue}"/>. Not null.</returns>
         public static BindTokenLexemeByKindParser<TValue> BindLexeme<TValue>(this TokenKind kind, Func<string, TValue> resultContinuation) => new BindTokenLexemeByKindParser<TValue>(kind, resultContinuation);
+
+        /// <summary>
+        /// Creates a <see cref="BindTokenLexemeByKindParser{TValue}"/>.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the parsed result.</typeparam>
+        /// <returns>The new instance of <see cref="BindTokenLexemeByKindParser{TValue}"/>. Not null.</returns>
+        public static BindTokenLexemeByKindParserAsync<TValue> BindLexemeAsync<TValue>(this TokenKind kind, Func<string, TValue> resultContinuation) => new BindTokenLexemeByKindParserAsync<TValue>(kind, resultContinuation);
 
         /// <summary>
         /// Creates a <see cref="SkipTakeParser{TValue}"/> skipping the specified-kind token of the and then taking the `item.

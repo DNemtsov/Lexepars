@@ -1,5 +1,6 @@
 ﻿using Lexepars.TestFixtures;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Lexepars.Tests
@@ -17,6 +18,19 @@ namespace Lexepars.Tests
             parser.FailsToParse(Tokenize("A==B")).WithMessage("(1, 3): B expected");
             parser.FailsToParse(Tokenize("=B")).WithMessage("(1, 1): A expected");
             parser.FailsToParse(Tokenize("A=")).WithMessage("(1, 3): B expected");
+        }
+
+        [Fact]
+        public async Task ParsesNameValuePairsAsync()
+        {
+            var parser = NameValuePairAsync(NvpLexer.Name.LexemeAsync(), NvpLexer.Delimiter.KindAsync(), NvpLexer.Value.LexemeAsync());
+
+            (await parser.Parses(Tokenize("A=B"))).AtEndOfInput();
+
+            (await parser.FailsToParseAsync(Tokenize("AA=B"))).WithMessage("(1, 2): = expected");
+            (await parser.FailsToParseAsync(Tokenize("A==B"))).WithMessage("(1, 3): B expected");
+            (await parser.FailsToParseAsync(Tokenize("=B"))).WithMessage("(1, 1): A expected");
+            (await parser.FailsToParseAsync(Tokenize("A="))).WithMessage("(1, 3): B expected");
         }
 
         private class NvpLexer : Lexer

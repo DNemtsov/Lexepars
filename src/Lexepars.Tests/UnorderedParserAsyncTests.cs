@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Lexepars.Tests
 {
-    public class UnorderedParserTests
+    public class UnorderedParserAsyncAsyncTests
     {
         private static readonly MatchableTokenKind aToken = new OperatorTokenKind("a");
         private static readonly MatchableTokenKind bToken = new OperatorTokenKind("b");
@@ -21,22 +21,16 @@ namespace Lexepars.Tests
 
         private static readonly Lexer lexer = new Lexer(separatorToken, aToken, bToken, cToken, dToken);
 
-        private static readonly IParser<string> a = aToken.Lexeme();
-        private static readonly IParser<string> b = bToken.Lexeme();
-        private static readonly IParser<string> c = cToken.Lexeme();
-        private static readonly IParser<string> d = dToken.Lexeme();
-        private static readonly IGeneralParser separator = new TokenByKindParser(separatorToken);
-
-        private static readonly IAsyncParser<string> aAsync = aToken.LexemeAsync();
-        private static readonly IAsyncParser<string> bAsync = bToken.LexemeAsync();
-        private static readonly IAsyncParser<string> cAsync = cToken.LexemeAsync();
-        private static readonly IAsyncParser<string> dAsync = dToken.LexemeAsync();
-        private static readonly IAsyncGeneralParser separatorAsync = new TokenByKindParserAsync(separatorToken);
+        private static readonly IAsyncParser<string> a = aToken.LexemeAsync();
+        private static readonly IAsyncParser<string> b = bToken.LexemeAsync();
+        private static readonly IAsyncParser<string> c = cToken.LexemeAsync();
+        private static readonly IAsyncParser<string> d = dToken.LexemeAsync();
+        private static readonly IAsyncGeneralParser separator = new TokenByKindParserAsync(separatorToken);
 
         [Fact]
         public async Task ParsesNonemptySubsetsOfItemsAsync()
         {
-            var parser = new UnorderedParserAsync<string>(separatorAsync, UnorderedParsingMode.NonemptySubset, aAsync, bAsync, cAsync);
+            var parser = new UnorderedParserAsync<string>(separator, UnorderedParsingMode.NonemptySubset, a, b, c);
 
             foreach (var input in
                 GetPermutations("abc")
@@ -93,29 +87,29 @@ namespace Lexepars.Tests
         [Fact]
         public void ChecksConstructorArguments()
         {
-            Func<UnorderedParser<string>> nullParsers = () => new UnorderedParser<string>(UnorderedParsingMode.FullSet, null);
+            Func<UnorderedParserAsync<string>> nullParsers = () => new UnorderedParserAsync<string>(UnorderedParsingMode.FullSet, null);
 
             nullParsers.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe("items");
 
-            Func<UnorderedParser<string>> emptyParsers = () => new UnorderedParser<string>(UnorderedParsingMode.FullSet, Array.Empty<IParser<string>>());
+            Func<UnorderedParserAsync<string>> emptyParsers = () => new UnorderedParserAsync<string>(UnorderedParsingMode.FullSet, Array.Empty<IAsyncParser<string>>());
 
             emptyParsers.ShouldThrow<ArgumentException>("items should not be empty").ParamName.ShouldBe("items");
 
-            Func<UnorderedParser<string>> parsersContainNull = () => new UnorderedParser<string>(UnorderedParsingMode.FullSet, a, null);
+            Func<UnorderedParserAsync<string>> parsersContainNull = () => new UnorderedParserAsync<string>(UnorderedParsingMode.FullSet, a, null);
 
             emptyParsers.ShouldThrow<ArgumentException>("items should not have null items").ParamName.ShouldBe("items");
         }
 
         [Fact]
-        public void ParsesDistinctItemsInAnyOrder()
+        public async Task ParsesDistinctItemsInAnyOrder()
         {
-            IParser<string[]> CreateParser(UnorderedParsingMode mode) => new UnorderedParser<string>(mode, a, b, c, d);
+            IAsyncParser<string[]> CreateParser(UnorderedParsingMode mode) => new UnorderedParserAsync<string>(mode, a, b, c, d);
 
             foreach (var parser in new[] { CreateParser(UnorderedParsingMode.FullSet), CreateParser(UnorderedParsingMode.NonemptySubset) })
             {
                 foreach (var input in GetPermutations("abcd"))
                 {
-                    parser.Parses(Tokenize(input))
+                    (await parser.Parses(Tokenize(input)))
                         .ParsedValue
                         .ShouldBe(new[] { "a", "b", "c", "d" });
                 }
@@ -123,15 +117,15 @@ namespace Lexepars.Tests
         }
 
         [Fact]
-        public void ParsesDistinctItemsInAnyOrderSeparated()
+        public async Task ParsesDistinctItemsInAnyOrderSeparated()
         {
-            IParser<string[]> CreateParser(UnorderedParsingMode mode) => new UnorderedParser<string>(separator, mode, a, b, c, d);
+            IAsyncParser<string[]> CreateParser(UnorderedParsingMode mode) => new UnorderedParserAsync<string>(separator, mode, a, b, c, d);
 
             foreach (var parser in new[] { CreateParser(UnorderedParsingMode.FullSet), CreateParser(UnorderedParsingMode.NonemptySubset) })
             {
                 foreach (var input in GetPermutationsSeparated("abcd"))
                 {
-                    parser.Parses(Tokenize(input))
+                    (await parser.Parses(Tokenize(input)))
                         .ParsedValue
                         .ShouldBe(new[] { "a", "b", "c", "d" });
 
@@ -140,9 +134,9 @@ namespace Lexepars.Tests
         }
 
         [Fact]
-        public void ParsesNonemptySubsetsOfItems()
+        public async Task ParsesNonemptySubsetsOfItems()
         {
-            var parser = new UnorderedParser<string>(separator, UnorderedParsingMode.NonemptySubset, a, b, c);
+            var parser = new UnorderedParserAsync<string>(separator, UnorderedParsingMode.NonemptySubset, a, b, c);
 
             foreach (var input in
                 GetPermutations("abc")
@@ -153,14 +147,14 @@ namespace Lexepars.Tests
                 .Concat(GetPermutations("b"))
                 .Concat(GetPermutations("c")))
             {
-                parser.Parses(Tokenize(input));
+                await parser.Parses(Tokenize(input));
             }
         }
 
         [Fact]
-        public void ParsesNonemptySubsetsOfItemsSeparated()
+        public async Task ParsesNonemptySubsetsOfItemsSeparated()
         {
-            var parser = new UnorderedParser<string>(separator, UnorderedParsingMode.NonemptySubset, a, b, c);
+            var parser = new UnorderedParserAsync<string>(separator, UnorderedParsingMode.NonemptySubset, a, b, c);
 
             foreach (var input in 
                 GetPermutationsSeparated("abc")
@@ -171,20 +165,20 @@ namespace Lexepars.Tests
                 .Concat(GetPermutationsSeparated("b"))
                 .Concat(GetPermutationsSeparated("c")))
             {
-                parser.Parses(Tokenize(input));
+                await parser.Parses(Tokenize(input));
             }
         }
 
         [Fact]
-        public void ParsesDuplicatedItemsInAnyOrder()
+        public async Task ParsesDuplicatedItemsInAnyOrder()
         {
-            IParser<string[]> CreateParser(UnorderedParsingMode mode) => new UnorderedParser<string>(mode, a, b, a, d);
+            IAsyncParser<string[]> CreateParser(UnorderedParsingMode mode) => new UnorderedParserAsync<string>(mode, a, b, a, d);
 
             foreach (var parser in new[] { CreateParser(UnorderedParsingMode.FullSet), CreateParser(UnorderedParsingMode.NonemptySubset) })
             {
                 foreach (var input in GetPermutations("abad"))
                 {
-                    parser.Parses(Tokenize(input))
+                    (await parser.Parses(Tokenize(input)))
                         .ParsedValue
                         .ShouldBe(new[] { "a", "b", "a", "d" });
                 }
@@ -192,15 +186,15 @@ namespace Lexepars.Tests
         }
 
         [Fact]
-        public void ParsesDuplicatedItemsInAnyOrderSeparated()
+        public async Task ParsesDuplicatedItemsInAnyOrderSeparated()
         {
-            IParser<string[]> CreateParser(UnorderedParsingMode mode) => new UnorderedParser<string>(separator, mode, a, b, a, d);
+            IAsyncParser<string[]> CreateParser(UnorderedParsingMode mode) => new UnorderedParserAsync<string>(separator, mode, a, b, a, d);
 
             foreach (var parser in new[] { CreateParser(UnorderedParsingMode.FullSet), CreateParser(UnorderedParsingMode.NonemptySubset) })
             {
                 foreach (var input in GetPermutationsSeparated("abad"))
                 {
-                    parser.Parses(Tokenize(input))
+                    (await parser.Parses(Tokenize(input)))
                         .ParsedValue
                         .ShouldBe(new[] { "a", "b", "a", "d" });
                 }
@@ -208,13 +202,13 @@ namespace Lexepars.Tests
         }
 
         [Fact]
-        public void ParsesAllIdenticalItems()
+        public async Task ParsesAllIdenticalItems()
         {
-            IParser<string[]> CreateParser(UnorderedParsingMode mode) => new UnorderedParser<string>(mode, a, a, a, a);
+            IAsyncParser<string[]> CreateParser(UnorderedParsingMode mode) => new UnorderedParserAsync<string>(mode, a, a, a, a);
 
             foreach (var parser in new[] { CreateParser(UnorderedParsingMode.FullSet), CreateParser(UnorderedParsingMode.NonemptySubset) })
             {
-                parser.Parses(Tokenize("aaaa"))
+                (await parser.Parses(Tokenize("aaaa")))
                     .ParsedValue
                     .ShouldBe(new[] { "a", "a", "a", "a" });
 
@@ -222,13 +216,13 @@ namespace Lexepars.Tests
         }
 
         [Fact]
-        public void ParsesAllIdenticalItemsSeparated()
+        public async Task ParsesAllIdenticalItemsSeparated()
         {
-            IParser<string[]> CreateParser(UnorderedParsingMode mode) => new UnorderedParser<string>(separator, mode, a, a, a, a);
+            IAsyncParser<string[]> CreateParser(UnorderedParsingMode mode) => new UnorderedParserAsync<string>(separator, mode, a, a, a, a);
 
             foreach (var parser in new[] { CreateParser(UnorderedParsingMode.FullSet), CreateParser(UnorderedParsingMode.NonemptySubset) })
             {
-                parser.Parses(Tokenize("a,a,a,a"))
+                (await parser.Parses(Tokenize("a,a,a,a")))
                     .ParsedValue
                     .ShouldBe(new[] { "a", "a", "a", "a" });
             }
@@ -236,68 +230,68 @@ namespace Lexepars.Tests
 
 
         [Fact]
-        public void FailsOnUnexpectedItem()
+        public async Task FailsOnUnexpectedItem()
         {
-            var parser =  new UnorderedParser<string>(UnorderedParsingMode.FullSet, a, b, c);
+            var parser =  new UnorderedParserAsync<string>(UnorderedParsingMode.FullSet, a, b, c);
 
-            parser
-            .FailsToParse(Tokenize("abX"))
+            (await parser
+            .FailsToParseAsync(Tokenize("abX")))
             .FailureMessages
             .ToString()
             .ShouldBe("c expected");
 
-            parser
-                .FailsToParse(Tokenize("abX"))
+            (await parser
+                .FailsToParseAsync(Tokenize("abX")))
                 .FailureMessages
                 .ToString()
                 .ShouldBe("c expected");
 
-            parser
-                .FailsToParse(Tokenize("aXb"))
+            (await parser
+                .FailsToParseAsync(Tokenize("aXb")))
                 .FailureMessages
                 .ToString()
                 .ShouldBe("b or c expected");
 
-            parser
-                .FailsToParse(Tokenize("Xab"))
+            (await parser
+                .FailsToParseAsync(Tokenize("Xab")))
                 .FailureMessages
                 .ToString()
                 .ShouldBe("a, b or c expected");
         }
 
         [Fact]
-        public void FailsOnUnexpectedItemSeparated()
+        public async Task FailsOnUnexpectedItemSeparated()
         {
-            IParser<string[]> CreateParser(UnorderedParsingMode mode) => new UnorderedParser<string>(separator, mode, a, b, c);
+            IAsyncParser<string[]> CreateParser(UnorderedParsingMode mode) => new UnorderedParserAsync<string>(separator, mode, a, b, c);
 
             foreach (var parser in new[] { CreateParser(UnorderedParsingMode.FullSet), CreateParser(UnorderedParsingMode.NonemptySubset) })
             {
-                parser
-                    .FailsToParse(Tokenize("a,b,X"))
+                (await parser
+                    .FailsToParseAsync(Tokenize("a,b,X")))
                     .FailureMessages
                     .ToString()
                     .ShouldBe("c expected");
 
-                parser
-                    .FailsToParse(Tokenize("a,X,b"))
+                (await parser
+                    .FailsToParseAsync(Tokenize("a,X,b")))
                     .FailureMessages
                     .ToString()
                     .ShouldBe("b or c expected");
 
-                parser
-                    .FailsToParse(Tokenize("X,a,b"))
+                (await parser
+                    .FailsToParseAsync(Tokenize("X,a,b")))
                     .FailureMessages
                     .ToString()
                     .ShouldBe("a, b or c expected");
 
-                parser
-                    .FailsToParse(Tokenize(",a,b"))
+                (await parser
+                    .FailsToParseAsync(Tokenize(",a,b")))
                     .FailureMessages
                     .ToString()
                     .ShouldBe("a, b or c expected");
 
-                parser
-                    .FailsToParse(Tokenize("a,b,"))
+                (await parser
+                    .FailsToParseAsync(Tokenize("a,b,")))
                     .FailureMessages
                     .ToString()
                     .ShouldBe("c expected");
@@ -305,53 +299,53 @@ namespace Lexepars.Tests
         }
 
         [Fact]
-        public void SucceedsWithNoItems()
+        public async Task SucceedsWithNoItems()
         {
-            var parser = new UnorderedParser<string>(UnorderedParsingMode.AnySubset, a, b, c, d);
+            var parser = new UnorderedParserAsync<string>(UnorderedParsingMode.AnySubset, a, b, c, d);
 
-            parser.Parses(Tokenize(""))
+            (await parser.Parses(Tokenize("")))
                 .ParsedValue
                 .ShouldBe(new string[4]);
         }
 
         [Fact]
-        public void SucceedsWithNoKnownItems()
+        public async Task SucceedsWithNoKnownItems()
         {
-            var parser = new UnorderedParser<string>(UnorderedParsingMode.AnySubset, a, b, c, d);
+            var parser = new UnorderedParserAsync<string>(UnorderedParsingMode.AnySubset, a, b, c, d);
 
-            parser.Parses(Tokenize("X"), false)
+            (await parser.Parses(Tokenize("X"), false))
                 .ParsedValue
                 .ShouldBe(new string[4]);
         }
 
         [Fact]
-        public void SucceedsWithNoItemsSeparated()
+        public async Task SucceedsWithNoItemsSeparated()
         {
-            var parser = new UnorderedParser<string>(separator, UnorderedParsingMode.AnySubset, a, b, c, d);
+            var parser = new UnorderedParserAsync<string>(separator, UnorderedParsingMode.AnySubset, a, b, c, d);
 
-            parser.Parses(Tokenize(""))
+            (await parser.Parses(Tokenize("")))
                 .ParsedValue
                 .ShouldBe(new string[4]);
         }
 
         [Fact]
-        public void SucceedsWithNoKnownItemsSeparated()
+        public async Task SucceedsWithNoKnownItemsSeparated()
         {
-            var parser = new UnorderedParser<string>(separator, UnorderedParsingMode.AnySubset, a, b, c, d);
+            var parser = new UnorderedParserAsync<string>(separator, UnorderedParsingMode.AnySubset, a, b, c, d);
 
-            parser.Parses(Tokenize("X"), false)
+            (await parser.Parses(Tokenize("X"), false))
                 .ParsedValue
                 .ShouldBe(new string[4]);
         }
 
         [Fact]
-        public void FailsOnMissingItem()
+        public async Task FailsOnMissingItem()
         {
-            var parser = new UnorderedParser<string>(UnorderedParsingMode.FullSet, a, b, c, d);
+            var parser = new UnorderedParserAsync<string>(UnorderedParsingMode.FullSet, a, b, c, d);
 
             foreach (var input in GetPermutations("acd"))
             {
-                parser.FailsToParse(Tokenize(input))
+                (await parser.FailsToParseAsync(Tokenize(input)))
                     .FailureMessages
                     .ToString()
                     .ShouldBe("b expected");
@@ -359,13 +353,13 @@ namespace Lexepars.Tests
         }
 
         [Fact]
-        public void FailsOnMissingItemSeparated()
+        public async Task FailsOnMissingItemSeparated()
         {
-            var parser = new UnorderedParser<string>(separator, UnorderedParsingMode.FullSet, a, b, c, d);
+            var parser = new UnorderedParserAsync<string>(separator, UnorderedParsingMode.FullSet, a, b, c, d);
 
             foreach (var input in GetPermutationsSeparated("abc"))
             {
-                parser.FailsToParse(Tokenize(input))
+                (await parser.FailsToParseAsync(Tokenize(input)))
                     .FailureMessages
                     .ToString()
                     .ShouldBe(", expected");

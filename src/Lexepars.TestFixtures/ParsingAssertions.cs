@@ -1,7 +1,10 @@
 ﻿namespace Lexepars.TestFixtures
 {
+    using Lexepars.Async_Parsers;
     using System;
     using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     public static class ParsingAssertions
     {
@@ -56,6 +59,35 @@
             return reply;
         }
 
+        public async static Task<IReply<T>> FailsToParseAsync<T>(this IAsyncParser<T> parser, IEnumerable<Token> tokens)
+        {
+            var cts = new CancellationTokenSource();
+            var stream = new TokenStream(tokens);
+
+            var reply = await parser.ParseAsync(stream, cts.Token);
+
+            if (reply.Success)
+                throw new AssertionException("parser failure", "parser completed successfully");
+
+            var gReply = await parser.ParseGenerallyAsync(stream, cts.Token);
+
+            if (gReply.Success)
+                throw new AssertionException("general parser failure", "general parser completed successfully");
+
+            return reply;
+        }
+
+        public async static Task<IGeneralReply> FailsToParseAsync(this IAsyncGeneralParser parser, IEnumerable<Token> tokens)
+        {
+            var cts = new CancellationTokenSource();
+            var reply = await parser.ParseGenerallyAsync(new TokenStream(tokens), cts.Token);
+
+            if (reply.Success)
+                throw new AssertionException("parser failure", "parser completed successfully");
+
+            return reply;
+        }
+
         public static IGeneralReply FailsToParse(this IGeneralParser parser, IEnumerable<Token> tokens)
         {
             var reply = parser.ParseGenerally(new TokenStream(tokens));
@@ -103,6 +135,32 @@
             return parser.ParseGenerally(stream).Succeeds();
         }
 
+        public static async Task<IReply<T>> PartiallyParsesAsync<T>(this IAsyncParser<T> parser, IEnumerable<Token> tokens, bool atTheEndOfInput = true)
+        {
+
+            var tokenSource = new CancellationTokenSource();
+
+            if (parser == null)
+                throw new ArgumentNullException(nameof(parser));
+
+            var stream = new TokenStream(tokens);
+
+            var generalReply = (await parser.ParseGenerallyAsync(stream, tokenSource.Token)).Succeeds();
+
+            var reply = (await parser.ParseAsync(stream, tokenSource.Token)).Succeeds();
+
+            return reply;
+        }
+
+        public async static Task<IGeneralReply> PartiallyParsesAsync(this IAsyncGeneralParser parser, IEnumerable<Token> tokens, bool atTheEndOfInput = true)
+        {
+            var tokenSource = new CancellationTokenSource();
+
+            var stream = new TokenStream(tokens);
+
+            return (await parser.ParseGenerallyAsync(stream, tokenSource.Token)).Succeeds();
+        }
+
         public static IReply<T> Parses<T>(this IParser<T> parser, IEnumerable<Token> tokens, bool atTheEndOfInput = true)
         {
             if (parser == null)
@@ -116,6 +174,29 @@
                 generalReply.AtEndOfInput();
 
             var reply = parser.Parse(stream).Succeeds();
+
+            if (atTheEndOfInput)
+                reply.AtEndOfInput();
+
+            return reply;
+        }
+
+        public static async Task<IReply<T>> Parses<T>(this IAsyncParser<T> parser, IEnumerable<Token> tokens, bool atTheEndOfInput = true)
+        {
+
+            var tokenSource = new CancellationTokenSource();
+
+            if (parser == null)
+                throw new ArgumentNullException(nameof(parser));
+
+            var stream = new TokenStream(tokens);
+
+            var generalReply = (await parser.ParseGenerallyAsync(stream, tokenSource.Token)).Succeeds();
+
+            if (atTheEndOfInput)
+                generalReply.AtEndOfInput();
+
+            var reply = (await parser.ParseAsync(stream, tokenSource.Token)).Succeeds();
 
             if (atTheEndOfInput)
                 reply.AtEndOfInput();
