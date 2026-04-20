@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Lexepars.Async_Parsers
+namespace Lexepars.ParsersAsync
 {
     /// <summary>
     /// Behaves like <see cref="MonadicUnitParser{TValue}"/>, except could be used with parallel parsers.

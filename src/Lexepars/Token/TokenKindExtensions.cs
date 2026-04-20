@@ -1,5 +1,5 @@
 ﻿using System;
-using Lexepars.Async_Parsers;
+using Lexepars.ParsersAsync;
 using Lexepars.Parsers;
 
 namespace Lexepars

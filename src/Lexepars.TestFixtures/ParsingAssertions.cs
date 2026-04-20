@@ -1,6 +1,6 @@
 ﻿namespace Lexepars.TestFixtures
 {
-    using Lexepars.Async_Parsers;
+    using Lexepars.ParsersAsync;
     using System;
     using System.Collections.Generic;
     using System.Threading;

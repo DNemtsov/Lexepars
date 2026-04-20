@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Lexepars.Async_Parsers
+namespace Lexepars.ParsersAsync
 {
     /// <summary>
     /// Tries all the parsers in parallel, then sequentially checks the results.

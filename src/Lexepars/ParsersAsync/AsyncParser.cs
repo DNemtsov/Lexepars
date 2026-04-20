@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Lexepars.Async_Parsers
+namespace Lexepars.ParsersAsync
 {
     /// <summary>
     /// Base class for a typical asynchronous parser. Has to be inherited from.

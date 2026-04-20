@@ -1,4 +1,4 @@
-﻿using Lexepars.Async_Parsers;
+﻿using Lexepars.ParsersAsync;
 using Lexepars.TestFixtures;
 using Lexepars.Tests.Fixtures;
 using Newtonsoft.Json.Linq;

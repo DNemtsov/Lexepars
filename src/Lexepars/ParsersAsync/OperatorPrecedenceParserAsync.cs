@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Lexepars.Async_Parsers
+namespace Lexepars.ParsersAsync
 {
     public delegate IAsyncParser<T> ExtendParserBuilder<T>(T left);
     public delegate T AtomNodeBuilder<out T>(string atom);

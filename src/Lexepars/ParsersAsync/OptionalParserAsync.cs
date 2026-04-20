@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Lexepars.Parsers;
 
-namespace Lexepars.Async_Parsers
+namespace Lexepars.ParsersAsync
 {
     /// <summary>
     /// Behaves like <see cref="OptionalParser{TValue}"/>, except could be used with parallel parsers.

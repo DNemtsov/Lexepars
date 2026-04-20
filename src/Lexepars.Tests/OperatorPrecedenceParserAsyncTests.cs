@@ -1,6 +1,6 @@
 ﻿namespace Lexepars.Tests
 {
-    using Lexepars.Async_Parsers;
+    using Lexepars.ParsersAsync;
     using Lexepars.TestFixtures;
     using Shouldly;
     using System;

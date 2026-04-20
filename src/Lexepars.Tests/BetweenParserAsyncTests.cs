@@ -1,4 +1,4 @@
-﻿using Lexepars.Async_Parsers;
+﻿using Lexepars.ParsersAsync;
 using Lexepars.Parsers;
 using Lexepars.TestFixtures;
 using Lexepars.Tests.Fixtures;

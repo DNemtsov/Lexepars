@@ -1,5 +1,5 @@
 using Lexepars.Parsers;
-using Lexepars.Async_Parsers;
+using Lexepars.ParsersAsync;
 using Lexepars.TestFixtures;
 using Xunit;
 using System.Threading.Tasks;

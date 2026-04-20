@@ -3,7 +3,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Lexepars.Async_Parsers
+namespace Lexepars.ParsersAsync
 {
 
     /// <summary>
