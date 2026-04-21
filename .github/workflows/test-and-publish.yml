@@ -54,9 +54,13 @@ jobs:
 
           - name: Pack
             run: dotnet pack -c Release --no-restore -o ./artifacts
+              -p:IncludeSymbols=true
+              -p:SymbolPackageFormat=snupkg
 
           - name: Upload artifact
             uses: actions/upload-artifact@v6
             with:
               name: nuget-package
-              path: ./artifacts/*.nupkg
+              path: |
+                ./artifacts/*.nupkg
+                ./artifacts/*.snupkg
