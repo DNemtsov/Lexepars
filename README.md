@@ -66,6 +66,22 @@ Finally, we can put all these pieces together to parse some text:
         var lexer = new JsonLexer();
         var tokens = lexer.Tokenize(input);
         var jobject = (JObject)JsonGrammar.Json.Parse(tokens).Value;
+
+## Asynchronous parsers
+
+Since Task<T> is a class and cannot be covariant, it cannot be used as the return type in an interface with an out T type parameter. Therefore the async parsers are implemented separately. To be used with other asynchronous parsers, a parser should inherit from [`AsyncParser`](https://github.com/DNemtsov/Lexepars/blob/master/src/Lexepars/ParsersAsync/AsyncParser.cs). Asynchronous parsers implement [`IAsyncParser`](https://github.com/DNemtsov/Lexepars/blob/master/src/Lexepars/IAsyncParser.cs) and [`IAsyncGeneralParser`](https://github.com/DNemtsov/Lexepars/blob/master/src/Lexepars/IAsyncGeneralParser.cs). They are identical in functionality to their non-asynchronous versions, but they also take a cancellation token.
+
+	public interface IAsyncParser<TValue> : IAsyncGeneralParser
+	{
+		Task<IReply<TValue>> ParseAsync(TokenStream tokens, CancellationToken cancellationToken);
+	}
+	
+Sample usage:
+	
+	var cts = new CancellationTokenSource();
+	var parser = new AttemptParserAsync<string>(new LambdaParserAsync<string>(tokens => Task.FromResult<IReply<string>>(new Success<string>("AA", tokens.Advance().Advance()))));
+	await parser.Parses(Tokenize("a"));
+	
         
 ## Documentation
 
