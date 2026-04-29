@@ -34,7 +34,7 @@ jobs:
           - name: Test
             run: dotnet test -c Release --no-restore
 
-    pack-and-publish:
+    pack-and-upload:
         needs: test
         runs-on: windows-latest
 
@@ -53,7 +53,14 @@ jobs:
             run: dotnet restore --locked-mode
 
           - name: Pack
-            run: dotnet pack -c Release --no-restore -o .
+            run: dotnet pack -c Release --no-restore -o ./artifacts
+              -p:IncludeSymbols=true
+              -p:SymbolPackageFormat=snupkg
 
-          - name: Publish
-            run: dotnet nuget push "*.nupkg" --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+          - name: Upload artifact
+            uses: actions/upload-artifact@v6
+            with:
+              name: nuget-package
+              path: |
+                ./artifacts/*.nupkg
+                ./artifacts/*.snupkg
