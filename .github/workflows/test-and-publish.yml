@@ -29,10 +29,10 @@ jobs:
               cache-dependency-path: "**/packages.lock.json"
 
           - name: Restore
-            run: dotnet restore --locked-mode
+            run: dotnet restore .\Lexepars.sln --locked-mode
 
           - name: Test
-            run: dotnet test -c Release --no-restore
+            run: dotnet test .\Lexepars.sln -c Release --no-restore
 
     pack-and-upload:
         needs: test
@@ -50,10 +50,10 @@ jobs:
               cache-dependency-path: "**/packages.lock.json"
 
           - name: Restore
-            run: dotnet restore --locked-mode
+            run: dotnet restore .\Lexepars.sln --locked-mode
 
           - name: Pack
-            run: dotnet pack -c Release --no-restore -o ./artifacts
+            run: dotnet pack .\Lexepars.sln -c Release --no-restore -o ./artifacts
               -p:IncludeSymbols=true
               -p:SymbolPackageFormat=snupkg
 
