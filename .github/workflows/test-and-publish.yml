@@ -14,17 +14,18 @@ jobs:
         timeout-minutes: 30
         strategy:
             fail-fast: false
-            matrix:
-                dotnet-version: ['8.0.x', '9.0.x', '10.0.x']
 
         steps:
           - name: Checkout
             uses: actions/checkout@v6
 
-          - name: Setup .NET ${{ matrix.dotnet-version }}
+          - name: Setup .NET
             uses: actions/setup-dotnet@v5
             with:
-              dotnet-version: ${{ matrix.dotnet-version }}
+              dotnet-version: |
+                8.0.x
+                9.0.x
+                10.0.x
               cache: true
               cache-dependency-path: "**/packages.lock.json"
 
