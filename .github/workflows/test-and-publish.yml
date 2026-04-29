@@ -50,11 +50,8 @@ jobs:
               cache: true
               cache-dependency-path: "**/packages.lock.json"
 
-          - name: Restore
-            run: dotnet restore .\Lexepars.sln --locked-mode
-
           - name: Pack
-            run: dotnet pack .\Lexepars.sln -c Release --no-restore -o ./artifacts
+            run: dotnet pack .\Lexepars.sln -c Release -o ./artifacts
               -p:IncludeSymbols=true
               -p:SymbolPackageFormat=snupkg
 
