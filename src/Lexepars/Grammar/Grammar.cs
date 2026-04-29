@@ -1,4 +1,5 @@
-﻿using Lexepars.Parsers;
+﻿using Lexepars.ParsersAsync;
+using Lexepars.Parsers;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -46,14 +47,23 @@ namespace Lexepars
         /// <returns>The new instance of <see cref="QuantifiedParser{TValue}"/>. Not null.</returns>
         public static QuantifiedParser<TValue> ZeroOrMore<TValue>(IParser<TValue> item, IGeneralParser separator = null) => new QuantifiedParser<TValue>(item, QuantificationRule.NOrMore, 0, -1, separator);
 
-        /// <summary>
-        /// Creates a new instance of <see cref="QuantifiedParser{TValue}"/> configured to <see cref="QuantificationRule.NOrMore"/> with N being 1.
-        /// </summary>
-        /// <typeparam name="TValue">The type of the parsed value.</typeparam>
-        /// <param name="item">The item parser. Not null.</param>
-        /// <param name="separator">Optional item separator parser. Is null by default.</param>
-        /// <returns>The new instance of <see cref="QuantifiedParser{TValue}"/>. Not null.</returns>
-        public static QuantifiedParser<TValue> OneOrMore<TValue>(IParser<TValue> item, IGeneralParser separator = null) => new QuantifiedParser<TValue>(item, QuantificationRule.NOrMore, 1, -1, separator);
+		/// <summary>
+		/// Creates a new instance of <see cref="QuantifiedParser{TValue}"/> configured to <see cref="QuantificationRule.NOrMore"/> with N being 0.
+		/// </summary>
+		/// <typeparam name="TValue">The type of the parsed value.</typeparam>
+		/// <param name="item">The item parser. Not null.</param>
+		/// <param name="separator">Optional item separator parser. Is null by default.</param>
+		/// <returns>The new instance of <see cref="QuantifiedParser{TValue}"/>. Not null.</returns>
+		public static QuantifiedParserAsync<TValue> ZeroOrMoreAsync<TValue>(IAsyncParser<TValue> item, IAsyncGeneralParser separator = null) => new QuantifiedParserAsync<TValue>(item, QuantificationRule.NOrMore, 0, -1, separator);
+
+		/// <summary>
+		/// Creates a new instance of <see cref="QuantifiedParser{TValue}"/> configured to <see cref="QuantificationRule.NOrMore"/> with N being 1.
+		/// </summary>
+		/// <typeparam name="TValue">The type of the parsed value.</typeparam>
+		/// <param name="item">The item parser. Not null.</param>
+		/// <param name="separator">Optional item separator parser. Is null by default.</param>
+		/// <returns>The new instance of <see cref="QuantifiedParser{TValue}"/>. Not null.</returns>
+		public static QuantifiedParser<TValue> OneOrMore<TValue>(IParser<TValue> item, IGeneralParser separator = null) => new QuantifiedParser<TValue>(item, QuantificationRule.NOrMore, 1, -1, separator);
 
         /// <summary>
         /// Creates a new instance of <see cref="QuantifiedParser{TValue}"/> configured to <see cref="QuantificationRule.NOrMore"/>.
@@ -150,14 +160,25 @@ namespace Lexepars
         /// <returns>The new instance of <see cref="BetweenParser{TValue}"/>. Not null.</returns>
         public static BetweenParser<TValue> Between<TValue>(IGeneralParser left, IParser<TValue> item, IGeneralParser right) => new BetweenParser<TValue>(left, item, right);
 
-        /// <summary>
-        /// Creates a new instance of <see cref="OptionalParser{TValue}"/>.
-        /// </summary>
-        /// <typeparam name="TValue">The type of parsed value.</typeparam>
-        /// <param name="parser">The `p parser. Not null.</param>
-        /// <param name="defaultValue">The default value that is returned in case `p fails.</param>
-        /// <returns>The new instance of <see cref="OptionalParser{TValue}"/>. Not null.</returns>
-        public static OptionalParser<TValue> Optional<TValue>(IParser<TValue> parser, TValue defaultValue = default(TValue)) => new OptionalParser<TValue>(parser, defaultValue);
+		/// <summary>
+		/// Creates a new instance of <see cref="BetweenParserAsync{TValue}"/>.
+		/// </summary>
+		/// <typeparam name="TValue">The type of the parsed value.</typeparam>
+		/// <param name="left">General parser of the left part. Not null.</param>
+		/// <param name="item">Item parser. Not null.</param>
+		/// <param name="right">General parser of the right part. Not null.</param>
+		/// <returns>The new instance of <see cref="BetweenParser{TValue}"/>. Not null.</returns>
+		public static BetweenParserAsync<TValue> BetweenAsync<TValue>(IAsyncGeneralParser left, IAsyncParser<TValue> item, IAsyncGeneralParser right) => new BetweenParserAsync<TValue>(left, item, right);
+
+
+		/// <summary>
+		/// Creates a new instance of <see cref="OptionalParser{TValue}"/>.
+		/// </summary>
+		/// <typeparam name="TValue">The type of parsed value.</typeparam>
+		/// <param name="parser">The `p parser. Not null.</param>
+		/// <param name="defaultValue">The default value that is returned in case `p fails.</param>
+		/// <returns>The new instance of <see cref="OptionalParser{TValue}"/>. Not null.</returns>
+		public static OptionalParser<TValue> Optional<TValue>(IParser<TValue> parser, TValue defaultValue = default(TValue)) => new OptionalParser<TValue>(parser, defaultValue);
 
         /// <summary>
         /// Creates a new instance of <see cref="NameValuePairParser{TName, TValue}"/>.
@@ -171,7 +192,19 @@ namespace Lexepars
         public static NameValuePairParser<TName, TValue> NameValuePair<TName, TValue>(IParser<TName> name, IGeneralParser delimiter, IParser<TValue> value)
             => new NameValuePairParser<TName, TValue>(name, delimiter, value);
 
-        public static TakeSkipParser<TResult> OccupiesEntireInput<TResult>(IParser<TResult> parser) => new TakeSkipParser<TResult>(parser, EndOfInput);
+		/// <summary>
+		/// Creates a new instance of <see cref="NameValuePairParserAsync{TName, TValue}"/>.
+		/// </summary>
+		/// <typeparam name="TName">The type of the parsed name.</typeparam>
+		/// <typeparam name="TValue">The type of the parsed value.</typeparam>
+		/// <param name="name">The `name parser. Not null.</param>
+		/// <param name="delimiter">The `delimiter parser. Not null.</param>
+		/// <param name="value">The `value parser. Not null.</param>
+		/// <returns></returns>
+		public static NameValuePairParserAsync<TName, TValue> NameValuePairAsync<TName, TValue>(IAsyncParser<TName> name, IAsyncGeneralParser delimiter, IAsyncParser<TValue> value)
+			=> new NameValuePairParserAsync<TName, TValue>(name, delimiter, value);
+
+		public static TakeSkipParser<TResult> OccupiesEntireInput<TResult>(IParser<TResult> parser) => new TakeSkipParser<TResult>(parser, EndOfInput);
 
         /// <summary>
         /// Creates a new instance of <see cref="SkipParser"/>.
